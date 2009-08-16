@@ -1,0 +1,29 @@
+#######################################
+# Syntax Coloring Map For Sleep
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+idle	KEYWORD2
+noiseReduction	KEYWORD2
+powerSave	KEYWORD2
+standBy	KEYWORD2
+powerDown	KEYWORD2
+powerDownAndWakeupExternalEvent	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+Sleep	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

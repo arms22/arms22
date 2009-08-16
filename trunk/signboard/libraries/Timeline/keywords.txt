@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map For Timeline
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Timeline	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+firstTrain	KEYWORD2
+nextTrain	KEYWORD2
+trainAt	KEYWORD2
+hours	KEYWORD2
+minutes	KEYWORD2
+destination	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+NXT	LITERAL1
+END	LITERAL1
