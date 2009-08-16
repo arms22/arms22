@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map For Matrix
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+AkiMatrix	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+bitBlt	KEYWORD2
+bitBlt_P	KEYWORD2
+write	KEYWORD2
+clearDisplay	KEYWORD2
+hsync	KEYWORD2
+setOutputEnable	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+

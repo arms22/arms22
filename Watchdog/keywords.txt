@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map For Watchdog
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+attachInterrupt	KEYWORD2
+detachInterrupt	KEYWORD2
+systemResetEnable	KEYWORD2
+enable	KEYWORD2
+disable	KEYWORD2
+timerReset	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+Watchdog	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+TimeOut15ms	LITERAL1
+TimeOut30ms	LITERAL1
+TimeOut60ms	LITERAL1
+TimeOut120ms	LITERAL1
+TimeOut250ms	LITERAL1
+TimeOut500ms	LITERAL1
+TimeOut1s	LITERAL1
+TimeOut2s	LITERAL1
+TimeOut4s	LITERAL1
+TimeOut8s	LITERAL1

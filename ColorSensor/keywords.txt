@@ -1,0 +1,31 @@
+#######################################
+# Syntax Coloring Map For ColorSensor
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+colorReference	KEYWORD2
+adjustWhite	KEYWORD2
+adjustBlack	KEYWORD2
+measureColor	KEYWORD2
+redValue	KEYWORD2
+greenValue	KEYWORD2
+blueValue	KEYWORD2
+#######################################
+# Instances (KEYWORD2)
+#######################################
+ColorSensor KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################
+COLOR_REF_RAW	LITERAL1
+COLOR_REF_MANUAL	LITERAL1
+COLOR_REF_WEAK_LIGHT	LITERAL1
+COLOR_REF_STRONG_LIGHT	LITERAL1
+COLOR_REF_REFLECTED_LIGHT_NEAR	LITERAL1
+COLOR_REF_REFLECTED_LIGHT_FAR	LITERAL1
