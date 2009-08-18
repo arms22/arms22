@@ -1,0 +1,13 @@
+Arduinoと秋月電子のLEDドットマトリクスを使った電車の発射時刻を表示する電光掲示板。
+
+= 概要 =
+
+
+
+
+= 詳細 =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
