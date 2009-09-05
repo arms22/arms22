@@ -89,6 +89,29 @@ void AkiMatrix::write(uint8_t x,uint8_t y,uint8_t value)
 	_vramBuffer[vy][vx] = temp;
 }
 
+void AkiMatrix::write(uint8_t x, uint8_t y, uint8_t sw,uint8_t sh,const uint8_t *src)
+{
+	uint8_t i,j,w,h;
+	if((x > AKI_MATRIX_NUMBER_OF_COLS) || (y > AKI_MATRIX_NUMBER_OF_ROWS)){
+		return;
+	}
+ 	w = sw;
+ 	sw = (sw + 7) / 8;
+	if((x+w) > AKI_MATRIX_NUMBER_OF_COLS){
+		w = AKI_MATRIX_NUMBER_OF_COLS - x;
+	}
+ 	h = sh;
+	if((y+h) > AKI_MATRIX_NUMBER_OF_ROWS){
+		h = AKI_MATRIX_NUMBER_OF_ROWS - y;
+	}
+	for(i=0;i<h;i++){
+		for(j=0;j<w;j++){
+			write(x+j, y+i,
+				  src[(i*sw) + (j/8)] & (1<<(j%8)));
+		}
+	}
+}
+
 void AkiMatrix::clear(void)
 {
 	uint8_t row,col;

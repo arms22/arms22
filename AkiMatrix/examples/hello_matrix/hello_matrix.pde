@@ -29,5 +29,4 @@ void setup()
 void loop()
 {
   myMatrix.hsync();
-  delay(1);
 }
