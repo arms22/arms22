@@ -17,6 +17,7 @@ bitBlt_P	KEYWORD2
 write	KEYWORD2
 clearDisplay	KEYWORD2
 hsync	KEYWORD2
+vsync	KEYWORD2
 setOutputEnable	KEYWORD2
 
 #######################################

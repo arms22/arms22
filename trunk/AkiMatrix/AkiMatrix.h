@@ -49,6 +49,7 @@ public:
 	void bitBlt(uint8_t x,uint8_t y,const uint8_t *src,uint8_t w,uint8_t h);
 	void bitBlt_P(uint8_t x,uint8_t y,const prog_uint8_t *src,uint8_t w,uint8_t h);
 	void write(uint8_t x, uint8_t y, uint8_t value);
+	void write(uint8_t x, uint8_t y, uint8_t w,uint8_t h,const uint8_t *src);
 	void clear(void);
 	void hsync(void);
 	bool vsync(void);
