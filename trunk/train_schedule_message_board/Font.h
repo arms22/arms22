@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#define	__MACRO_ONLY__
+#include "fontdata.h"
+#undef	__MACRO_ONLY__
+
 class FontClass
 {
 public:
