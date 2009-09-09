@@ -1,0 +1,32 @@
+#######################################
+# Syntax Coloring Map For RTC8564
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+RTC8564	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+seconds	KEYWORD2
+minutes	KEYWORD2
+hours	KEYWORD2
+days	KEYWORD2
+weekdays	KEYWORD2
+months	KEYWORD2
+years	KEYWORD2
+century	KEYWORD2
+sync	KEYWORD2
+available	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+Rtc	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
