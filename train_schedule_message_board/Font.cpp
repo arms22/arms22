@@ -6,8 +6,8 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
  */
+#define __LOAD_FONTTABLE__
 #include "Font.h"
-#include "fontdata.h"
 
 bool FontClass::getBitmap(uint16_t encoding,uint8_t *w,uint8_t *h,uint8_t *bitmap)
 {

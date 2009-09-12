@@ -16,7 +16,7 @@ class TimelineClass
 {
 private:
 	int _position;
-	uint8_t _hours,_prev_hours;
+	uint8_t _hours;
 	uint8_t _minutes;
 	uint8_t _dest;
 	const prog_uint8_t *_data;
@@ -24,7 +24,7 @@ public:
 	TimelineClass();
 	void firstTrain(void);
 	bool nextTrain(void);
-	bool passed(uint8_t hours,uint8_t minutes,bool day_passed = false);
+	bool passed(uint8_t hours,uint8_t minutes);
 	bool trainAt(uint8_t hours,uint8_t minutes,uint8_t weekday = 1);
 	uint8_t hours() const;
 	uint8_t minutes() const;

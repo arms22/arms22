@@ -18,7 +18,7 @@ TimelineClass::TimelineClass()
 void TimelineClass::firstTrain(void)
 {
 	_position = 0;
-	_prev_hours = _hours = pgm_read_byte(_data+_position); _position++;
+	_hours = pgm_read_byte(_data+_position); _position++;
 	_dest = pgm_read_byte(_data+_position); _position++;
 	_minutes = pgm_read_byte(_data+_position); _position++;
 }
@@ -31,7 +31,6 @@ bool TimelineClass::nextTrain(void)
 	}else{
 		if(pgm_read_byte(_data+_position) == EOL){
 			_position++;
-			_prev_hours = _hours;
 			_hours = pgm_read_byte(_data+_position); _position++;
 		}
 		_dest = pgm_read_byte(_data+_position); _position++;
@@ -40,19 +39,28 @@ bool TimelineClass::nextTrain(void)
 	return true;
 }
 
-bool TimelineClass::passed(uint8_t hours,uint8_t minutes,bool day_passed)
+bool TimelineClass::passed(uint8_t hours,uint8_t minutes)
 {
 	int now,dep;
+	if(hours < BOUNDARY_OF_SERVICE){
+		hours += 24;
+	}
 	now = minutes + (hours * 60);
 	dep = _minutes + (_hours * 60);
-	if((_hours < _prev_hours) && !day_passed)
-		dep += 24 * 60;
 	return (now > dep);
 }
 
 bool TimelineClass::trainAt(uint8_t hours,uint8_t minutes,uint8_t weekday)
 {
 	bool ret;
+	
+	if(hours < BOUNDARY_OF_SERVICE){
+		if(weekday > 0){
+			weekday--;
+		}else{
+			weekday = 6;
+		}
+	}
 	
 	if(weekday == 0) {
 		_data = HolidayTimeline;
