@@ -6,5 +6,5 @@ void setup(void)
 
 void loop(void)
 {
-  Sleep::idle();
+  Sleep.idle();
 }
