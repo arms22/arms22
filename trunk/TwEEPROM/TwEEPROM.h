@@ -1,15 +1,12 @@
 #ifndef TwEEPROM_H
 #define TwEEPROM_H
 
-#include <stdint.h>
+#include <inttypes.h>
 
 #define TwEEPROM_WRITE_CYCLE 5
 
 class TwEEPROMClass
 {
-private:
-	uint8_t _pageBoundary;
-	
 public:
 	TwEEPROMClass();
 	~TwEEPROMClass(){}

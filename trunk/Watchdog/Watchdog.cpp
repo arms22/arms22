@@ -1,21 +1,24 @@
 #include <avr/interrupt.h>
-#include <wiring.h>
 #include "Watchdog.h"
 
-static void (*wdtIntHandler)(void) = 0;
-uint8_t Watchdog::_controlReg = _BV(WDIF) | _BV(WDIE) | _BV(WDE) | _BV(WDP2);
+void (*wdtIntHandler)(void) = 0;
 
-void Watchdog::attachInterrupt(void(*handler)(void))
+WatchdogClass::WatchdogClass()
+	: _controlReg(_BV(WDIF) | _BV(WDIE) | _BV(WDE) | _BV(WDP2))
+{
+}
+
+void WatchdogClass::attachInterrupt(void(*handler)(void))
 {
 	wdtIntHandler = handler;
 }
 
-void Watchdog::detachInterrupt(void)
+void WatchdogClass::detachInterrupt(void)
 {
 	wdtIntHandler = 0;
 }
 
-void Watchdog::systemResetEnable(bool flag)
+void WatchdogClass::systemResetEnable(bool flag)
 {
 	if(flag){
 		_controlReg |= _BV(WDE);
@@ -24,7 +27,7 @@ void Watchdog::systemResetEnable(bool flag)
 	}
 }
 
-void Watchdog::enable(uint8_t value)
+void WatchdogClass::enable(uint8_t value)
 {
 	uint8_t reg = _controlReg | (value & 0x8 ? _WD_PS3_MASK : 0) | (value & 0x7);
 	cli();
@@ -34,6 +37,8 @@ void Watchdog::enable(uint8_t value)
 	_WD_CONTROL_REG = reg;
 	sei();
 }
+
+WatchdogClass Watchdog;
 
 ISR(WDT_vect)
 {

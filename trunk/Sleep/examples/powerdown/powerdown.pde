@@ -23,7 +23,7 @@ void loop(void)
       delay(100);     // this delay is needed, the sleep 
                       // function will provoke a Serial error otherwise!!
       count = 0;
-      Sleep::powerDownAndWakeupExternalEvent(0);     // sleep function called here
+      Sleep.powerDownAndWakeupExternalEvent(0);     // sleep function called here
     }
     if (val == 'A') {
       Serial.println("Hola Caracola"); // classic dummy message
@@ -36,6 +36,6 @@ void loop(void)
     delay(100);     // this delay is needed, the sleep 
                     // function will provoke a Serial error otherwise!!
     count = 0;
-    Sleep::powerDownAndWakeupExternalEvent(0);     // sleep function called here
+    Sleep.powerDownAndWakeupExternalEvent(0);     // sleep function called here
   }
 }

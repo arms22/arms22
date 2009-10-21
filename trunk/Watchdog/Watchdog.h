@@ -1,13 +1,12 @@
-#ifndef Watchdog_h
-#define Watchdog_h
+#ifndef WATCHDOG_H
+#define WATCHDOG_H
 
 #include <inttypes.h>
 #include <avr/wdt.h>
 
-class Watchdog
+class WatchdogClass
 {
-	Watchdog(){}
-	static uint8_t _controlReg;
+	uint8_t _controlReg;
 	
 public:
 	enum {
@@ -24,11 +23,12 @@ public:
 		TimeOut8s = WDTO_8S,
 #endif
 	};
-	~Watchdog(){}
+	WatchdogClass();
+	~WatchdogClass(){}
 	static void attachInterrupt(void(*handler)(void));
 	static void detachInterrupt(void);	
-	static void systemResetEnable(bool flag);
-	static void enable(uint8_t value);
+	void systemResetEnable(bool flag);
+	void enable(uint8_t value);
 	static void disable(void){
 		wdt_disable();
 	}
@@ -36,5 +36,7 @@ public:
 		wdt_reset();
 	}
 };
+
+extern WatchdogClass Watchdog;
 
 #endif
