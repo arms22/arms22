@@ -20,7 +20,7 @@
 #define S8100B_LOW_PASS_FACTOR	(0.9)
 #endif
 
-#define S8100B_ADC_RESOLUTION	(S8100B_ADC_VREF/1024.0)
+#define S8100B_ADC_RESOLUTION	(S8100B_ADC_VREF/1023.0)
 #define S8100B_SENSITIVITY		(-8.140)
 
 class Temperature
@@ -32,21 +32,21 @@ private:
 public:
 	Temperature(int pin)
 		: _analogPin(pin)
-		, _lastAnalogValue(analogRead(_analogPin)) {}
+		, _lastAnalogValue(0) {}
 	
 	~Temperature() {}
 	
-	int read() {
-		int temp;
+	float read() {
+		if (_lastAnalogValue == 0) {
+			_lastAnalogValue = analogRead(_analogPin);
+		}
 		
 		// Low Pass Filter
 		_lastAnalogValue = (_lastAnalogValue * (1.0 - S8100B_LOW_PASS_FACTOR))
 			+ ((float)analogRead(_analogPin) * S8100B_LOW_PASS_FACTOR);
 		
 		// Calc Temp
-		temp = (int)(((_lastAnalogValue * S8100B_ADC_RESOLUTION) - S8100B_ZERO_CONFIG) / S8100B_SENSITIVITY);
-		
-		return temp;
+		return ((_lastAnalogValue * S8100B_ADC_RESOLUTION) - S8100B_ZERO_CONFIG) / S8100B_SENSITIVITY;
 	}
 };
 
