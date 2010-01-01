@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map For NixieTubes
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+NixieTubes	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+write	KEYWORD2
+anodeOn	KEYWORD2
+anodeOff	KEYWORD2
+updateTube	KEYWORD2
+update	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
