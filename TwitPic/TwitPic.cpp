@@ -96,6 +96,8 @@ int TwitPic::uploadAndPost(const char *message,
 
 		DEBUG_PRINTLN("wait response");
 		ret = waitRspStat();
+		
+		client.stop();
 	}else{
 		DEBUG_PRINTLN("fail");
 	}
