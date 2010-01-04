@@ -214,12 +214,19 @@ bool CameraC328R::snapshot( SnapshotType snapshotType, uint16_t skipFrames )
  *
  * @return True if successful, false otherwise
  */
-bool CameraC328R::getJPEGPicture( PictureType pictureType, uint16_t processDelay, void (*callback)( uint16_t picSize, uint16_t packPicDataSize, uint16_t packCount, byte* pack ) )
+bool CameraC328R::getJPEGPictureSize( PictureType pictureType, uint16_t processDelay,uint16_t &pictureSize)
 {
-  uint16_t pictureSize = 0;
-
   if( !getPicture( pictureType, processDelay, pictureSize ) )
     return false;
+  _pictureSize = pictureSize;
+  _processDelay = processDelay;
+  return true;
+}
+
+bool CameraC328R::getJPEGPictureData( void (*callback)( uint16_t picSize, uint16_t packPicDataSize, uint16_t packCount, byte* pack ) )
+{
+  uint16_t pictureSize = _pictureSize;
+  uint16_t processDelay = _processDelay;
 
   // Keeps track of the number of errors, will wait up till MAX_ERRORS
   uint8_t errorCount = 0;
@@ -276,6 +283,19 @@ bool CameraC328R::getJPEGPicture( PictureType pictureType, uint16_t processDelay
   {
     return false;
   }
+}
+
+bool CameraC328R::getJPEGPicture( PictureType pictureType, uint16_t processDelay, void (*callback)( uint16_t picSize, uint16_t packPicDataSize, uint16_t packCount, byte* pack ) )
+{
+  uint16_t pictureSize;
+
+  if( !getJPEGPictureSize(pictureType,processDelay,pictureSize) )
+	return false;
+
+  if( !getJPEGPictureData(callback) )
+	return false;
+
+  return true;
 }
 
 /**

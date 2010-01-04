@@ -128,12 +128,16 @@ class CameraC328R
     bool setPackageSize( uint16_t );
     bool snapshot( SnapshotType, uint16_t );
     bool getJPEGPicture( PictureType, uint16_t, void (*)(uint16_t, uint16_t, uint16_t, byte*) );
+    bool getJPEGPictureSize( PictureType, uint16_t, uint16_t& );
+    bool getJPEGPictureData( void (*)(uint16_t, uint16_t, uint16_t, byte*) );
     bool setBaudRate( BaudRate );
     bool getRawPicture( PictureType, byte[], uint16_t&, uint16_t );
 
   private:
 	NewSoftSerial *_serialPort;
     uint16_t _packageSize;
+    uint16_t _pictureSize;
+    uint16_t _processDelay;
     byte _command[CMD_SIZE];
     byte _receive_cmd[CMD_SIZE];
     void createCommand( const byte, byte, byte, byte, byte );
