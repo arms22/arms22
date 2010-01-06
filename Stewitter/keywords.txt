@@ -1,0 +1,22 @@
+#######################################
+# Syntax Coloring Map For Stewitter
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Stewitter	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+post	KEYWORD2
+getStatus	KEYWORD2
+checkStatus	KEYWORD2
+wait	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
