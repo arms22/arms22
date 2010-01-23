@@ -13,6 +13,10 @@
 
 #include "Stewitter.h"
 
+#define STEWGATE_POST_API			"/sg1/post/"
+#define STEWGATE_LAST_MENTION_API	"/sg1/last_mention/"
+#define STEWGATE_HOST				"stewgate.appspot.com"
+
 static uint8_t server[] = {64,233,183,141}; // IP addr of stewgate.appspot.com
 
 Stewitter::Stewitter(const char *token) : client(server, 80)
@@ -88,8 +92,8 @@ bool Stewitter::post(const char *msg)
 	parseStatus = 0;
 	statusCode = 0;
 	if (client.connect()) {
-		println_P(PSTR("POST /device/post/ HTTP/1.0"));
-		println_P(PSTR("Host: stewgate.appspot.com"));
+		println_P(PSTR("POST " STEWGATE_POST_API " HTTP/1.0"));
+		println_P(PSTR("Host: " STEWGATE_HOST));
 		print_P(PSTR("Content-Length: "));
 		client.println(3 +		// "_t="
 					   percentEscapedLength(deviceToken) +
