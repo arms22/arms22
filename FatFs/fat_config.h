@@ -43,7 +43,7 @@ extern "C"
  *
  * Set to 1 to enable LFN support, set to 0 to disable it.
  */
-#define FAT_LFN_SUPPORT 0
+#define FAT_LFN_SUPPORT 1
 
 /**
  * \ingroup fat_config

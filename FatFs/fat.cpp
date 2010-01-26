@@ -2354,8 +2354,7 @@ offset_t fat_get_fs_free(const struct fat_fs_struct* fs)
     uint32_t fat_size = fs->header.fat_size;
     while(fat_size > 0)
     {
-        uintptr_t length = 0xffff;
-//        uintptr_t length = UINTPTR_MAX - 1;
+        uintptr_t length = 0xffff - 1;
         if(fat_size < length)
             length = fat_size;
 
