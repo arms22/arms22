@@ -25,6 +25,7 @@ private:
 	int statusCode;
 	Client client;
 	const char *deviceToken;
+	static uint8_t server[4];
 	void print_P(const prog_char *str);
 	void println_P(const prog_char *str);
 	void printPercentEscaped(const char *str);
