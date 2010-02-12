@@ -11,15 +11,17 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 */
 
+#include <EthernetDNS.h>
 #include "Stewitter.h"
 
 #define STEWGATE_POST_API			"/sg1/post/"
 #define STEWGATE_LAST_MENTION_API	"/sg1/last_mention/"
 #define STEWGATE_HOST				"stewgate.appspot.com"
+#define STEWGATE_DOMAIN				"appspot.com"
 
-static uint8_t server[] = {64,233,183,141}; // IP addr of stewgate.appspot.com
+uint8_t Stewitter::server[4] = {0, 0, 0, 0};
 
-Stewitter::Stewitter(const char *token) : client(server, 80)
+Stewitter::Stewitter(const char *token) : client(Stewitter::server, 80)
 {
 	deviceToken = token;
 }
@@ -80,8 +82,7 @@ void Stewitter::printPercentEscaped(const char *str)
 				client.print('+');
 			} else {
 				client.print('%');
-				client.print(c >>  4,HEX);
-				client.print(c & 0xf,HEX);
+				client.print((unsigned char)c,HEX);
 			}
 		}
 	} while (c);
@@ -91,6 +92,12 @@ bool Stewitter::post(const char *msg)
 {
 	parseStatus = 0;
 	statusCode = 0;
+
+	DNSError err = EthernetDNS.resolveHostName(STEWGATE_DOMAIN, Stewitter::server);
+	if (err != DNSSuccess) {
+		return false;
+	}
+
 	if (client.connect()) {
 		println_P(PSTR("POST " STEWGATE_POST_API " HTTP/1.0"));
 		println_P(PSTR("Host: " STEWGATE_HOST));
