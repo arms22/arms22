@@ -1,3 +1,5 @@
+#include <EthernetDHCP.h>
+#include <EthernetDNS.h>
 #include <Ethernet.h>
 #include <Stewitter.h>
 
@@ -7,23 +9,21 @@
 //   Arduino IDE Serial Monitor is not usable because it doesn't seem able to send Enter key code.
 
 // Ethernet Shield Settings
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-byte ip[] = { 10, 0, 0, 177 };
-byte gateway[] = { 10, 0, 0, 1 };
-byte subnet[] = { 255, 255, 0, 0 };
+byte mac[] = { 
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-Stewitter twitter("Your-Device-Token");
+Stewitter twitter("YourToken");
 
-char msg[141] = "";
+char msg[140+1] = "";
 int len = 0;
 
 
 void setup()
 {
-  Ethernet.begin(mac, ip, gateway, subnet);
-  Serial.begin(9600);
-  
   delay(1000);
+  EthernetDHCP.begin(mac);
+
+  Serial.begin(9600);
   Serial.print("> ");
 }
 
@@ -51,6 +51,7 @@ void loop()
     else
       Serial.print(recv);
   }
+  EthernetDHCP.maintain();
 }
 
 void post()
@@ -60,12 +61,15 @@ void post()
     int status = twitter.wait();
     if (status == 200) {
       Serial.println("OK.");
-    } else {
+    } 
+    else {
       Serial.print("failed : code ");
       Serial.println(status);
     }
-  } else {
+  } 
+  else {
     Serial.println("connection failed.");
   }
   delay(1000);
 }
+
