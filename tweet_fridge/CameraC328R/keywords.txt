@@ -1,0 +1,56 @@
+#######################################
+# Syntax Coloring Map for CameraC328R
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+CameraC328R	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+sync	KEYWORD2
+reset	KEYWORD2
+powerOff	KEYWORD2
+initial	KEYWORD2
+setLightFrequency	KEYWORD2
+setPackageSize	KEYWORD2
+snapshot	KEYWORD2
+getJPEGPicture	KEYWORD2
+setBaudRate	KEYWORD2
+getRawPicture	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+CT_GRAYSCALE_2	LITERAL1
+CT_GRAYSCALE_4	LITERAL1
+CT_GRAYSCALE_8	LITERAL1
+CT_COLOR_12	LITERAL1
+CT_COLOR_16	LITERAL1
+CT_JPEG	LITERAL1
+PR_80x60	LITERAL1
+PR_160x120	LITERAL1
+JR_80x64	LITERAL1
+JR_160x128	LITERAL1
+JR_320x240	LITERAL1
+JR640x480	LITERAL1
+ST_COMPRESSED	LITERAL1
+ST_UNCOMPRESSED	LITERAL1
+PT_SNAPSHOT	LITERAL1
+PT_PREVIEW	LITERAL1
+PT_JPEG	LITERAL1
+FT_50Hz	LITERAL1
+FT_60Hz	LITERAL1
+BAUD7200	LITERAL1
+BAUD9600	LITERAL1
+BAUD14400	LITERAL1
+BAUD19200	LITERAL1
+BAUD28800	LITERAL1
+BAUD38400	LITERAL1
+BAUD57600	LITERAL1
+BAUD115200	LITERAL1
