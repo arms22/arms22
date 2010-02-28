@@ -75,7 +75,7 @@ bool CameraC328R::sync()
     sendCommand();
 
     // Wait for ACK response
-    success = waitForACK( RESPONSE_DELAY, CMD_SYNC );
+    success = waitForACK( SYNC_DELAY, CMD_SYNC );
 
     // Make sure it is an ACK
     if( success )

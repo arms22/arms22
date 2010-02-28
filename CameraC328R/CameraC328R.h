@@ -34,6 +34,9 @@
 // How long to wait for serial communication responses
 #define RESPONSE_DELAY 100
 
+// How long to wait for SYNC response
+#define SYNC_DELAY 10
+
 // How long to wait for camera to process JPEG data
 #define PROCESS_DELAY 1000
 
