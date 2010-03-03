@@ -202,7 +202,7 @@ void takePicture(void)
 
   Serial.print( "\nbegin upload..." );
   //ret = twitpic.upload(&c328rImageTransfer);
-  ret = twitpic.uploadAndPost("Hello Maker! I am Refrigerator! #tweetfridge", &c328rImageTransfer);
+  ret = twitpic.uploadAndPost("Hello Maker! I am Refrigerator! #tweetingfridge", &c328rImageTransfer);
   if( ret < 0 ){
     Serial.print("post failed");
     Serial.println(ret);
