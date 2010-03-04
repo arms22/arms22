@@ -1,0 +1,33 @@
+#######################################
+# Syntax Coloring Map For Prescaler
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+set	KEYWORD2
+division	KEYWORD2
+scaledMillis	KEYWORD2
+scaledDelay	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+Prescaler	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+clock_div_1	LITERAL1
+clock_div_2	LITERAL1
+clock_div_4	LITERAL1
+clock_div_8	LITERAL1
+clock_div_16	LITERAL1
+clock_div_32	LITERAL1
+clock_div_64	LITERAL1
+clock_div_128	LITERAL1
+clock_div_256	LITERAL1
