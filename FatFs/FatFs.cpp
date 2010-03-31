@@ -80,13 +80,13 @@ bool FatFsClass::find_file_in_dir(const char *file_name,
 								  struct fat_dir_entry_struct *dir_entry)
 {
 	while(1){
-        if(!fat_read_dir(_dd, dir_entry))
-            break;
-        if(strcmp(file_name, dir_entry->long_name) == 0){
-            fat_reset_dir(_dd);
-            return true;
-        }
-    }
+		if(!fat_read_dir(_dd, dir_entry))
+			break;
+		if(strcmp(file_name, dir_entry->long_name) == 0){
+			fat_reset_dir(_dd);
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -97,6 +97,21 @@ bool FatFsClass::fileExists(const char * file_name)
 }
 
 #if FAT_WRITE_SUPPORT
+bool FatFsClass::deleteDirectory(const char* file_name)
+{
+	return deleteFile(file_name);
+}
+
+bool FatFsClass::createDirectory(const char* file_name)
+{
+	struct fat_dir_entry_struct directory;
+	if(fat_create_dir(_dd, file_name, &directory)){
+		sd_raw_sync();
+		return true;
+	}
+	return false;
+}
+
 bool FatFsClass::deleteFile(const char * file_name)
 {
  	struct fat_dir_entry_struct directory;
@@ -180,6 +195,12 @@ void File::write(const uint8_t *buffer, size_t size)
 {
 	fat_write_file(_fd, (uint8_t*)buffer, size);
 }
+
+bool File::resize(uint32_t size)
+{
+	return fat_resize_file(_fd, size);
+}
+
 #endif
 
 int32_t File::seekToEnd(int32_t offset)
