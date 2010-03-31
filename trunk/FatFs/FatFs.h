@@ -27,6 +27,7 @@ public:
     virtual void write(uint8_t);
     virtual void write(const char *str);
     virtual void write(const uint8_t *buffer, size_t size);
+    bool resize(uint32_t size);
 #endif
 	int32_t seekToEnd(int32_t offset = 0);
 	int32_t seekToOffset(int32_t offset);
@@ -48,6 +49,8 @@ public:
 	bool changeDirectory(const char* file_name);
 	bool fileExists(const char* file_name);
 #if FAT_WRITE_SUPPORT
+	bool deleteDirectory(const char* file_name);
+	bool createDirectory(const char* file_name);
 	bool deleteFile(const char* file_name);
 	bool createFile(const char* file_name);
 #endif
