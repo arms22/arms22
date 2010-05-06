@@ -59,3 +59,11 @@ void SleepClass::powerDownAndWakeupExternalEvent(uint8_t interruptNumber)
 }
 
 SleepClass Sleep;
+
+void sleep(unsigned long ms)
+{
+	unsigned long start = millis();
+	while (millis() - start <= ms){
+		Sleep.idle();
+	}
+}
