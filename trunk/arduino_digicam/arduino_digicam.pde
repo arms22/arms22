@@ -5,11 +5,8 @@
 #include <Bounce.h>
 #include <EEPROM.h>
 #include <Sleep.h>
-
-// GPS制御端子
-const int gpsRxPin    = 2;
-const int gpsTxPin    = 4;
-const int gpsPowerPin = 8;
+#include <TinyGPS.h>
+#include <Time.h>
 
 // LED端子
 const int ledRedPin   = 5;
@@ -21,24 +18,8 @@ const int wakeupPin   = 3;
 // バッテリー電圧アナログ端子
 const int vBatteryPin = 5;
 
-// カメラ通信
-CameraC328R camera;
-
-// GPS通信
-NewSoftSerial gps(gpsRxPin, gpsTxPin);
-
-// 写真保存
-File file;
-
 // シャッタースイッチ
 Bounce button(wakeupPin, 10);
-
-// 関数プロトタイプ
-void sleep(unsigned long ms);
-void green(uint8_t on_off);
-void attention(uint8_t on_off);
-void heartbeat(bool force = false);
-void takePicture(void);
 
 void setup()
 {
@@ -56,16 +37,19 @@ void setup()
   sleep(11);
   button.update();
 
+  // 日時初期化 2010/4/1 9:00:00
+  setTime(9, 0, 0, 25, 4, 2010);
+
   // FATファイルシステム初期化
   if( FatFs.initialize() ){
     // 写真保存用フォルダ作成
     char dir[] = "photos";
     FatFs.createDirectory(dir);
+
     // 写真保存用フォルダへ移動
     if( !FatFs.changeDirectory(dir) ){
       goto init_error;
     }
-    green(HIGH);
   }
   else{
 init_error:
@@ -78,60 +62,122 @@ unsigned long last_heartbeat = 0;
 unsigned long last_takepict  = 0;
 unsigned long low_duration   = 0;
 bool interval_mode           = false;
+bool gps_logging             = false;
+bool interval_mode_ind       = false;
+bool gps_logging_ind         = false;
 
 void loop()
 {
-  // ボタン離されたら
-  if( button.update() && (button.read() == HIGH) ){
-    // 8秒以上長押ししていたら
-    if(low_duration > 8000 ){
-      ;
-    }
-    // 3秒以上長押ししていたら
-    else if( low_duration > 3000 ){
-      // インターバル撮影モード
-      interval_mode = true;
-      last_takepict = millis();
-      green(HIGH);
-    }
-    else {
-      // インターバル撮影モードでの単押しの場合
-      if( interval_mode ){
-        // インターバル撮影モードオフ
-        interval_mode = false;
-        heartbeat();
-      }
-      else{
-        // 単押しは通常撮影
-        takePicture();
-      }
+  // GPSデータ受信
+  if( gps_logging ){
+    if( gps_fetch() ){
+      gps_encode();
+      gps_writeData();
     }
   }
 
-  // ボタンが長押し押されている時間を保存しておく
+  if( button.update() ){
+    // ボタン Release
+    if( button.read() == HIGH ){
+      heartbeat();
+      // 5.5秒以上の長押し
+      if( low_duration > 5500 ){
+        if( gps_logging ){
+          // GPSログ OFF
+          gps_logging = false;
+          gps_powerOff();        
+        }
+        else{
+          // GPSログ ON
+          gps_logging = true;
+          gps_powerOn();
+        }
+      }
+      // 2.5秒以上の長押し
+      else if( low_duration > 2500 ){
+        // インターバル撮影 ON
+        interval_mode = !interval_mode;
+      }
+      // 短押し
+      else {
+        // 通常撮影
+        takePicture();
+        button.update();
+
+        // インターバル撮影を遅らせる
+        last_takepict = millis();
+      }
+    }
+    // ボタン Push
+    else{
+      gps_logging_ind = interval_mode_ind = false;
+    }
+  }
+
+  // 長押し中
   if( button.read() == LOW ){
+    // 長押しの時間を保存
     low_duration = button.duration();
+
+    // インターバル撮影を遅らせる
+    last_takepict = millis();
+
+    // ハートビートを遅らせる
+    last_heartbeat = millis();
+
+    // タイミングインジケート
+    if( low_duration > 5500 && !gps_logging_ind){
+      heartbeat();
+      gps_logging_ind = true;
+    }
+    else if( low_duration > 2500 && !interval_mode_ind ){
+      heartbeat();
+      interval_mode_ind = true;
+    }
   }
 
   // インターバル撮影モードなら最後の撮影から3秒経過していたら撮影する
-  if( interval_mode && (millis() - last_takepict > 3000) ){
-    takePicture();
-    last_takepict = millis();
+  if( interval_mode ){
+    if( millis() - last_takepict > 3000 ){
+      takePicture();
+      last_takepict = millis();
+    }
+  }
+  else{
+    // ハートビート
+    if(millis() - last_heartbeat > 3000){
+      heartbeat();
+      last_heartbeat = millis();
+    }
   }
 
-  // ハートビート
-  if(!interval_mode){
-    heartbeat();
-  }
-
-  sleep(10);
+  sleep(1);
 }
 
-void sleep(unsigned long ms){
-  unsigned long start = millis();
-  while (millis() - start <= ms){
-    Sleep.idle();
+void takePicture(void)
+{
+  green(HIGH);
+  attention(LOW);
+
+  // GPSとの通信停止
+  if( gps_logging ){
+    gps_suspend(true);
   }
+
+  // JPEG撮影
+  bool success = getJPEGPicture();
+
+  // GPSとの通信再開
+  if( gps_logging ){
+    gps_suspend(false);
+  }
+
+  green(LOW);
+  if( !success ){
+    attention(HIGH);
+    sleep(5000);
+  }
+  attention(LOW);
 }
 
 void green(uint8_t on_off){
@@ -152,104 +198,24 @@ void attention(uint8_t on_off){
   }
 }
 
-void heartbeat(bool force){
-  if( force || (millis() - last_heartbeat > 3000) ){
-    green(HIGH);
-    sleep(25);
-    green(LOW);
-    last_heartbeat = millis();
-  }
-}
-
-void getJPEGPicture_callback( uint16_t pictureSize, uint16_t packageSize, uint16_t packageCount, byte* package )
-{
+void heartbeat(void){
   green(HIGH);
-  file.write(package, packageSize);
+  sleep(20);
   green(LOW);
+  sleep(20);
 }
 
-int sequentialPhotoNumber(void)
+#if FAT_DATETIME_SUPPORT
+void get_datetime(uint16_t* y, uint8_t* m, uint8_t* d, uint8_t* h, uint8_t* n, uint8_t* s)
 {
-  int num;
-  num = EEPROM.read(0);
-  num |= EEPROM.read(1) << 8;
-  num++;
-  if( num > 9999 ){
-    num = 0;
-  }
-  EEPROM.write(0,num & 0xff);
-  EEPROM.write(1,num >> 8);
-  return num;
+  time_t t = now();
+  *y = year(t);
+  *m = month();
+  *d = day();
+  *h = hour();
+  *n = minute();
+  *s = second();
 }
-
-void takePicture(void)
-{
-  uint16_t pictureSize = 0;
-  char buf[12];
-
-  green(HIGH);
-  attention(LOW);
-
-  if( !camera.sync() ){
-    goto camera_error;
-  }
-
-  if( !camera.initial( CameraC328R::CT_JPEG, CameraC328R::PR_160x120, CameraC328R::JR_640x480 ) ){
-    goto camera_error;
-  }
-
-  if( !camera.setPackageSize( 64 ) ){
-    goto camera_error;
-  }
-
-  if( !camera.setLightFrequency( CameraC328R::FT_50Hz ) ){
-    goto camera_error;
-  }
-
-  attention(HIGH);
-  if( !camera.snapshot( CameraC328R::ST_COMPRESSED, 0 ) ){
-    goto camera_error;
-  }
-  attention(LOW);
-
-  snprintf(buf, sizeof(buf), "img%04d.jpg", sequentialPhotoNumber());
-
-  if( FatFs.fileExists(buf) ){
-    FatFs.deleteFile(buf);
-  }
-
-  if( !FatFs.createFile(buf) ){
-    goto camera_error;
-  }
-
-  if( !file.open(buf) ){
-    goto camera_error;
-  }
-
-  if( !camera.getJPEGPictureSize( CameraC328R::PT_SNAPSHOT, PROCESS_DELAY, pictureSize) ){
-    goto camera_error;
-  }
-
-  file.resize(pictureSize);
-
-  if( !camera.getJPEGPictureData( &getJPEGPicture_callback) ){
-    goto camera_error;
-  }
-
-  file.close();
-
-  green(LOW);
-  return;
-
-  {
-camera_error:
-    green(LOW);
-    attention(HIGH);
-    sleep(5000);
-    attention(LOW);
-  }
-}
-
-
+#endif
 
 
