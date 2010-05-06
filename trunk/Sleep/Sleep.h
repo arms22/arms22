@@ -30,5 +30,6 @@ public:
 };
 
 extern SleepClass Sleep;
+extern void sleep(unsigned long ms);
 
 #endif
