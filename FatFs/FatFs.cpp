@@ -200,17 +200,16 @@ bool File::resize(uint32_t size)
 {
 	return fat_resize_file(_fd, size);
 }
-
 #endif
 
-int32_t File::seekToEnd(int32_t offset)
+bool File::seekToEnd(int32_t offset)
 {
-	fat_seek_file(_fd, &offset, FAT_SEEK_END);
+	return fat_seek_file(_fd, &offset, FAT_SEEK_END);
 }
 
-int32_t File::seekToOffset(int32_t offset)
+bool File::seekToOffset(int32_t offset)
 {
-	fat_seek_file(_fd, &offset, FAT_SEEK_SET);
+	return fat_seek_file(_fd, &offset, FAT_SEEK_SET);
 }
 
 void File::close(void)
