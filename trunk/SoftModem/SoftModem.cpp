@@ -4,25 +4,6 @@
 #include <pins_arduino.h>
 #include "SoftModem.h"
 
-// Low speed
-//  LOW frequency: 800Hz
-//  HIGH frequency: 1600Hz
-//  Data transfer rate: 100 baud
-//  Brief carrier tone before each transmission (HIGH)
-//  1 start bit (LOW)
-//  8 data bits, LSB first
-//  1 even parity bit
-//  1 stop bit (HIGH)
-
-// High speed
-//  LOW frequency: 2666Hz
-//  HIGH frequency: 4000Hz
-//  Data transfer rate: 600 baud
-//  Brief carrier tone before each transmission (HIGH)
-//  1 start bit (LOW)
-//  8 data bits, LSB first
-//  1 even parity bit
-//  1 stop bit (HIGH)
 
 #define SOFT_MODEM_TX_PIN      (3)
 #define SOFT_MODEM_RX_PIN1     (6)  // AIN0
@@ -38,14 +19,14 @@ SoftModem::~SoftModem() {
 }
 
 #if SOFT_MODEM_BAUD_RATE <= 100
-  #define TIMER_CLOCK_SELECT		(7) // clk/1024
-  #define MICROS_PER_TIMER_COUNT	(clockCyclesToMicroseconds(1024))
+  #define TIMER_CLOCK_SELECT    (7) // clk/1024
+  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(1024))
 #elif SOFT_MODEM_BAUD_RATE <= 600
-  #define TIMER_CLOCK_SELECT		(5) // clk/128
-  #define MICROS_PER_TIMER_COUNT	(clockCyclesToMicroseconds(128))
+  #define TIMER_CLOCK_SELECT    (4) // clk/64
+  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(64))
 #else
-  #define TIMER_CLOCK_SELECT		(4) // clk/64
-  #define MICROS_PER_TIMER_COUNT	(clockCyclesToMicroseconds(64))
+  #define TIMER_CLOCK_SELECT    (3) // clk/32
+  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(32))
 #endif
 
 #if SOFT_MODEM_DEBUG
@@ -67,18 +48,19 @@ void SoftModem::begin(void)
   _txPortReg = portOutputRegister(digitalPinToPort(SOFT_MODEM_TX_PIN));
   _txPortMask = digitalPinToBitMask(SOFT_MODEM_TX_PIN);
 
-  _rawBits = _recvStat = 0xff;
-  _recvBufferHead = _recvBufferTail = 0;
-
 #if SOFT_MODEM_DEBUG
   portLEDReg = portOutputRegister(digitalPinToPort(13));
   portLEDMask = digitalPinToBitMask(13);
 #endif
 
+  _recvStat = 0xff;
+  _recvBufferHead = _recvBufferTail = 0;
+
   SoftModem::activeObject = this;
 
   _lastTCNT = TCNT2;
-  _lastDiff = 0;
+  _lastDiff = _lowCount = _highCount = 0;
+
   TCCR2A = 0;
   TCCR2B = TIMER_CLOCK_SELECT;
   ACSR   = _BV(ACIE) | _BV(ACIS1);
@@ -94,9 +76,27 @@ void SoftModem::end(void)
 #define SOFT_MODEM_BIT_PERIOD      (1000000/SOFT_MODEM_BAUD_RATE)
 #define SOFT_MODEM_LOW_USEC        (1000000/SOFT_MODEM_LOW_FREQ)
 #define SOFT_MODEM_HIGH_USEC       (1000000/SOFT_MODEM_HIGH_FREQ)
-#define TIMER_COUNT_PER_BIT_PERIOD (SOFT_MODEM_BIT_PERIOD/MICROS_PER_TIMER_COUNT)
-#define TIMER_COUNT_PER_LOW_FREQ   (SOFT_MODEM_LOW_USEC/MICROS_PER_TIMER_COUNT)
-#define TIMER_COUNT_PER_HIGH_FREQ  (SOFT_MODEM_HIGH_USEC/MICROS_PER_TIMER_COUNT)
+
+#define SOFT_MODEM_LOW_CNT         (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_LOW_USEC)
+#define SOFT_MODEM_HIGH_CNT        (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_HIGH_USEC)
+
+#define TCNT_BIT_PERIOD            (SOFT_MODEM_BIT_PERIOD/MICROS_PER_TIMER_COUNT)
+#define TCNT_LOW_FREQ              (SOFT_MODEM_LOW_USEC/MICROS_PER_TIMER_COUNT)
+#define TCNT_HIGH_FREQ             (SOFT_MODEM_HIGH_USEC/MICROS_PER_TIMER_COUNT)
+
+enum {
+  FSK_START_BIT = 0,
+  FSK_D0_BIT,
+  FSK_D1_BIT,
+  FSK_D2_BIT,
+  FSK_D3_BIT,
+  FSK_D4_BIT,
+  FSK_D5_BIT,
+  FSK_D6_BIT,
+  FSK_D7_BIT,  
+  FSK_PARITY_BIT,
+  FSK_STOP_BIT
+};
 
 void SoftModem::demodulate(void)
 {
@@ -111,30 +111,33 @@ void SoftModem::demodulate(void)
     diff = t - _lastTCNT;
   }
 
-  if(diff < 3)
-    return;
-
   _lastTCNT = t;
-//  _lastDiff = diff = ((diff >> 1) + (diff >> 2) + (_lastDiff >> 2));
+  _lastDiff = diff = ((diff >> 1) + (diff >> 2) + (_lastDiff >> 2));
 
-  if((diff >= (uint8_t)(TIMER_COUNT_PER_LOW_FREQ * 0.8)) &&
-     (diff <= (uint8_t)(TIMER_COUNT_PER_LOW_FREQ * 1.2))){
-    _rawBits <<= 1;
-    if(_recvStat == 0xff && !(_rawBits & 3)){
-      _recvStat = _recvBits = 0;
-      OCR2A     = t + (uint8_t)(TIMER_COUNT_PER_BIT_PERIOD + (TIMER_COUNT_PER_BIT_PERIOD>>1) - (TIMER_COUNT_PER_LOW_FREQ<<1));
-      TIFR2    |= _BV(OCF2A);
-      TIMSK2   |= _BV(OCIE2A);
+  if((diff >= (uint8_t)(TCNT_LOW_FREQ * 0.8)) &&
+     (diff <= (uint8_t)(TCNT_LOW_FREQ * 1.2))){
+    _lowCount++;
+    if(_recvStat == 0xff && (_lowCount >= 2)){
+      _recvStat  = FSK_START_BIT;
+      _highCount = 0;
+      _recvBits  = 0;
+#if SOFT_MODEM_DEBUG
+      _errs = 0;
+#endif
+      OCR2A      = t + (uint8_t)(TCNT_BIT_PERIOD - (TCNT_LOW_FREQ<<1));
+      TIFR2     |= _BV(OCF2A);
+      TIMSK2    |= _BV(OCIE2A);
     }
   }
-  else if((diff >= (uint8_t)(TIMER_COUNT_PER_HIGH_FREQ * 0.8)) &&
-          (diff <= (uint8_t)(TIMER_COUNT_PER_HIGH_FREQ * 1.2))){
-    _rawBits <<= 1;
-    _rawBits |= 1;
+  else if((diff >= (uint8_t)(TCNT_HIGH_FREQ * 0.8)) &&
+          (diff <= (uint8_t)(TCNT_HIGH_FREQ * 1.2))){
+    _highCount++;
   }
+#if SOFT_MODEM_DEBUG
   else{
     _errs++;
   }
+#endif
 }
 
 ISR(ANALOG_COMP_vect)
@@ -147,36 +150,54 @@ ISR(ANALOG_COMP_vect)
 
 void SoftModem::recv(void)
 {
-  if(_recvStat < 8){            // Data Bits
-    _recvBits |= (_rawBits & 1) << _recvStat;
+  if(_recvStat == FSK_START_BIT){// Start bit
+    if(_lowCount > _highCount){
+      _recvStat++;
+    }else{
+      _recvStat = 0xff;
+      TIMSK2 &= ~_BV(OCIE2A);
+#if SOFT_MODEM_DEBUG
+      errs = _errs;
+      _errs = 0;
+#endif
+    }
+  }
+  else if(FSK_D0_BIT <= _recvStat && _recvStat <= FSK_D7_BIT) { // Data bits
+    _recvBits >>= 1;
+    if(_highCount > _lowCount){
+      _recvBits |= 0x80;
+    }
     _recvStat++;
   }
-  else if(_recvStat == 8){      // Parity Bit
+  else if(_recvStat == FSK_PARITY_BIT){      // Parity bit
     _recvStat++;
   }
-  else if(_recvStat == 9){      // Stop Bit
+  else if(_recvStat == FSK_STOP_BIT){      // Stop bit
     uint8_t new_tail = (_recvBufferTail + 1) % SOFT_MODEM_MAX_RX_BUFF;
     if(new_tail != _recvBufferHead){
       _recvBuffer[_recvBufferTail] = _recvBits;
       _recvBufferTail = new_tail;
     }
-    _rawBits = _recvStat = 0xff;
-    errs = _errs;
-	_errs = 0;
+    _recvStat = 0xff;
     TIMSK2 &= ~_BV(OCIE2A);
+#if SOFT_MODEM_DEBUG
+    errs = _errs;
+    _errs = 0;
+#endif
   }
+  _lowCount = _highCount = 0;
 }
 
 ISR(TIMER2_COMPA_vect)
 {
-  OCR2A += (uint8_t)TIMER_COUNT_PER_BIT_PERIOD;
+  OCR2A += (uint8_t)TCNT_BIT_PERIOD;
   SoftModem *act = SoftModem::activeObject;
   if(act){
     act->recv();
   }
 #if SOFT_MODEM_DEBUG
   *portLEDReg ^= portLEDMask;
-#endif	
+#endif  
 }
 
 uint8_t SoftModem::available(void)
@@ -193,6 +214,7 @@ int SoftModem::read(void)
   return d;
 }
 
+#if 0
 void SoftModem::modulate(uint8_t b)
 {
   uint16_t half;
@@ -205,20 +227,20 @@ void SoftModem::modulate(uint8_t b)
   do {
     delayMicroseconds(half);
     *_txPortReg ^= _txPortMask;
-//#if SOFT_MODEM_DEBUG
-//    *portLEDReg ^= portLEDMask;
-//#endif
+#if SOFT_MODEM_DEBUG
+    *portLEDReg ^= portLEDMask;
+#endif
   } while (!(TIFR2 & _BV(OCF2B)));
 
-  OCR2B += (uint8_t)TIMER_COUNT_PER_BIT_PERIOD;
+  OCR2B += (uint8_t)TCNT_BIT_PERIOD;
 }
 
 void SoftModem::write(uint8_t data)
 {
   uint8_t parity = 0;
-  OCR2B = TCNT2 + (uint8_t)TIMER_COUNT_PER_BIT_PERIOD;
-  modulate(HIGH);						   // Synchronization Bit
-  modulate(LOW);						   // Start Bit
+  OCR2B = TCNT2 + (uint8_t)TCNT_BIT_PERIOD;
+  modulate(HIGH);              // Synchronization Bit
+  modulate(LOW);               // Start Bit
   for(uint8_t mask = 1; mask; mask <<= 1){ // Data Bits
     if(data & mask){
       parity++;
@@ -228,17 +250,56 @@ void SoftModem::write(uint8_t data)
       modulate(LOW);
     }
   }
-  modulate(parity & 1);      // Parity Bit
-  modulate(HIGH);			 // Stop Bit
-  modulate(HIGH);			 // Dammy Bit
+  modulate(parity & 1); // Parity Bit
+  modulate(HIGH);       // Stop Bit
+  modulate(HIGH);       // Dammy Bit
 }
+#else
+void SoftModem::modulate(uint8_t b)
+{
+  uint8_t cnt;
+  uint16_t half;
+  if(b){
+    cnt = (uint8_t)(SOFT_MODEM_HIGH_CNT * 2);
+    half = (uint16_t)(SOFT_MODEM_HIGH_USEC / 2);
+  }else{
+    cnt = (uint8_t)(SOFT_MODEM_LOW_CNT * 2);
+    half = (uint16_t)(SOFT_MODEM_LOW_USEC / 2);
+  }
+  do {
+    cnt--;
+    delayMicroseconds(half);
+    *_txPortReg ^= _txPortMask;
+#if SOFT_MODEM_DEBUG
+    *portLEDReg ^= portLEDMask;
+#endif
+  } while (cnt);
+}
+
+void SoftModem::write(uint8_t data)
+{
+  uint8_t parity = 0;
+  modulate(HIGH);              // Synchronization Bit
+  modulate(LOW);               // Start Bit  
+  for(uint8_t mask = 1; mask; mask <<= 1){ // Data Bits
+    if(data & mask){
+      parity++;
+      modulate(HIGH);
+    }
+    else{
+      modulate(LOW);
+    }
+  }
+  modulate(parity & 1); // Parity Bit
+  modulate(HIGH);       // Stop Bit
+  modulate(HIGH);       // Dammy Bit
+}
+#endif
 
 #if SOFT_MODEM_DEBUG
 
 #include <HardwareSerial.h>
 
-#define SOFT_MODEM_LOW_CNT  (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_LOW_USEC)
-#define SOFT_MODEM_HIGH_CNT (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_HIGH_USEC)
 #define SOFT_MODEM_LOW_ADJ  (SOFT_MODEM_BIT_PERIOD%SOFT_MODEM_LOW_USEC)
 #define SOFT_MODEM_HIGH_ADJ (SOFT_MODEM_BIT_PERIOD%SOFT_MODEM_HIGH_USEC)
 
@@ -258,8 +319,6 @@ void SoftModem::handleAnalogComp(bool high)
 
 void SoftModem::demodulateTest(void)
 {
-  Serial.begin(115200);
-
   Serial.print("bit period = ");
   Serial.println(SOFT_MODEM_BIT_PERIOD);
 
@@ -285,17 +344,17 @@ void SoftModem::demodulateTest(void)
   Serial.println(MICROS_PER_TIMER_COUNT);
 
   Serial.println("low freq TMC > ");
-  Serial.println(TIMER_COUNT_PER_LOW_FREQ,DEC);
-  Serial.println(TIMER_COUNT_PER_LOW_FREQ*0.9,DEC);
-  Serial.println(TIMER_COUNT_PER_LOW_FREQ*1.1,DEC);
+  Serial.println(TCNT_LOW_FREQ,DEC);
+  Serial.println(TCNT_LOW_FREQ*0.9,DEC);
+  Serial.println(TCNT_LOW_FREQ*1.1,DEC);
 
   Serial.println("high freq TMC > ");
-  Serial.println(TIMER_COUNT_PER_HIGH_FREQ,DEC);
-  Serial.println(TIMER_COUNT_PER_HIGH_FREQ*0.9,DEC);
-  Serial.println(TIMER_COUNT_PER_HIGH_FREQ*1.1,DEC);
+  Serial.println(TCNT_HIGH_FREQ,DEC);
+  Serial.println(TCNT_HIGH_FREQ*0.9,DEC);
+  Serial.println(TCNT_HIGH_FREQ*1.1,DEC);
 
   Serial.print("bit period TMC = ");
-  Serial.println(TIMER_COUNT_PER_BIT_PERIOD,DEC);
+  Serial.println(TCNT_BIT_PERIOD,DEC);
 
   begin();
 
