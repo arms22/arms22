@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map For JapaninoPOV
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+JapaninoPOV	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+update	KEYWORD2
+setPinSync	KEYWORD2
+setWidth	KEYWORD2
+setFrameBuffer	KEYWORD2
+setFrameTime	KEYWORD2
+setFrameTimeAutoDetect	KEYWORD2
+setScrolling	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
