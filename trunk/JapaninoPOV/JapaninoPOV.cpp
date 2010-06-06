@@ -1,6 +1,6 @@
 /*
   JapaninoPOV.cpp
-  Copyright (c) arms22 2010. All right reserved.
+  Copyright (c) arms22. All right reserved.
   
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
