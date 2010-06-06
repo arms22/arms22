@@ -5,11 +5,10 @@
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
- */
+*/
 
 #include <WConstants.h>
 #include <pins_arduino.h>
-#include <Sprite.h>
 #include "Direct8x8.h"
 
 Direct8x8::Direct8x8(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
@@ -37,21 +36,15 @@ Direct8x8::Direct8x8(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 void Direct8x8::write(uint8_t x, uint8_t y, uint8_t value)
 {
 	uint8_t tmp;
-//	y &= 7;
 	tmp = _buffer[y];
-//	x &= 7;
 	tmp = tmp & ~(0x01 << x);
 	tmp = tmp | ((value & 0x01) << x);
 	_buffer[y] = tmp;
 }
 
-void Direct8x8::write(uint8_t x, uint8_t y, const Sprite &sprite)
+void Direct8x8::write(uint8_t y, uint8_t value)
 {
-	uint8_t w = sprite.width();
-	uint8_t h = sprite.height();
-	for (uint8_t i=0; i<h; i++)
-		for (uint8_t j=0; j<w; j++)
-			write(x + j, y + i, sprite.read(j, i));
+	_buffer[y] = value;
 }
 
 void Direct8x8::clear(void)
@@ -63,24 +56,39 @@ void Direct8x8::clear(void)
 	_row = 8;
 }
 
-void Direct8x8::hsync(void)
+void Direct8x8::turnOff(void)
 {
-	digitalWrite(_rowPins[_row - 1], LOW);
-	if(_row < 8)
-		;
-	else
-		_row = 0;
-	uint8_t col,rowData = _buffer[_row];
-	for(col=0;col<8;col++){
-		digitalWrite(_colPins[col], !((rowData >> col) & 0x01));
-	}
+	digitalWrite(_rowPins[_row], LOW);
+}
+
+void Direct8x8::turnOn(void)
+{
 	digitalWrite(_rowPins[_row], HIGH);
-	_row++;
+}
+
+void Direct8x8::updateRow(void)
+{
+	_row = (_row + 1) & 7;
+	uint8_t rowData = _buffer[_row];
+	digitalWrite(_colPins[0], !(rowData & 0x01));
+	digitalWrite(_colPins[1], !(rowData & 0x02));
+	digitalWrite(_colPins[2], !(rowData & 0x04));
+	digitalWrite(_colPins[3], !(rowData & 0x08));
+	digitalWrite(_colPins[4], !(rowData & 0x10));
+	digitalWrite(_colPins[5], !(rowData & 0x20));
+	digitalWrite(_colPins[6], !(rowData & 0x40));
+	digitalWrite(_colPins[7], !(rowData & 0x80));
 }
 
 bool Direct8x8::vsync(void)
 {
-	hsync();
-	delayMicroseconds(950);
-	return (_row == 8);
+	unsigned long t = millis();
+	if(t != _lastmillis){
+		turnOff();
+		delayMicroseconds(100);
+		updateRow();
+		turnOn();
+		_lastmillis = t;
+	}
+	return (_row == 7);
 }

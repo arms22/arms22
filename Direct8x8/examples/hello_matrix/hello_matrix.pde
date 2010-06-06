@@ -1,3 +1,4 @@
+#include <Sprite.h>
 #include <Direct8x8.h>
 
 /*
