@@ -25,8 +25,8 @@ SoftModem::~SoftModem() {
   #define TIMER_CLOCK_SELECT      (6) // clk/256
   #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(256))
 #elif SOFT_MODEM_BAUD_RATE <= 600
-  #define TIMER_CLOCK_SELECT      (4) // clk/64
-  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(64))
+  #define TIMER_CLOCK_SELECT      (5) // clk/128
+  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(128))
 #else
   #define TIMER_CLOCK_SELECT      (3) // clk/32
   #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(32))
@@ -54,6 +54,9 @@ void SoftModem::begin(void)
 #if SOFT_MODEM_DEBUG
 	portLEDReg = portOutputRegister(digitalPinToPort(13));
 	portLEDMask = digitalPinToBitMask(13);
+	_errs = 0;
+	_ints = 0;
+	_hisHead = _hisTail = 0;
 #endif
 
 	_recvStat = 0xff;
@@ -77,15 +80,20 @@ void SoftModem::end(void)
 }
 
 #define SOFT_MODEM_BIT_PERIOD      (1000000/SOFT_MODEM_BAUD_RATE)
-#define SOFT_MODEM_LOW_USEC        (1000000/SOFT_MODEM_LOW_FREQ)
 #define SOFT_MODEM_HIGH_USEC       (1000000/SOFT_MODEM_HIGH_FREQ)
+#define SOFT_MODEM_LOW_USEC        (1000000/SOFT_MODEM_LOW_FREQ)
 
-#define SOFT_MODEM_LOW_CNT         (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_LOW_USEC)
 #define SOFT_MODEM_HIGH_CNT        (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_HIGH_USEC)
+#define SOFT_MODEM_LOW_CNT         (SOFT_MODEM_BIT_PERIOD/SOFT_MODEM_LOW_USEC)
 
 #define TCNT_BIT_PERIOD            (SOFT_MODEM_BIT_PERIOD/MICROS_PER_TIMER_COUNT)
-#define TCNT_LOW_FREQ              (SOFT_MODEM_LOW_USEC/MICROS_PER_TIMER_COUNT)
 #define TCNT_HIGH_FREQ             (SOFT_MODEM_HIGH_USEC/MICROS_PER_TIMER_COUNT)
+#define TCNT_LOW_FREQ              (SOFT_MODEM_LOW_USEC/MICROS_PER_TIMER_COUNT)
+
+#define TCNT_HIGH_TH_L             (TCNT_HIGH_FREQ * 0.90)
+#define TCNT_HIGH_TH_H             (TCNT_HIGH_FREQ * 1.25)
+#define TCNT_LOW_TH_L              (TCNT_LOW_FREQ * 0.90)
+#define TCNT_LOW_TH_H              (TCNT_LOW_FREQ * 1.25)
 
 enum {
 	FSK_START_BIT = 0,
@@ -105,7 +113,7 @@ void SoftModem::demodulate(void)
 {
 	uint8_t t = TCNT2;
 	uint8_t diff;
-
+	
 	if(TIFR2 & _BV(TOV2)){
 		TIFR2 |= _BV(TOV2);
 		diff = (255 - _lastTCNT) + t + 1;
@@ -114,37 +122,39 @@ void SoftModem::demodulate(void)
 		diff = t - _lastTCNT;
 	}
 	
+#if SOFT_MODEM_DEBUG
+	_ints++;
+#endif
+	
 	if(diff < (uint8_t)(TCNT_HIGH_FREQ * 0.5))				// Noise?
 		return;
 	
 	_lastTCNT = t;
 	_lastDiff = diff = ((diff >> 1) + (diff >> 2) + (_lastDiff >> 2));
 	
-	if((diff >= (uint8_t)(TCNT_LOW_FREQ * 0.8)) &&
-	   (diff <= (uint8_t)(TCNT_LOW_FREQ * 1.2))){
+	if((diff >= (uint8_t)(TCNT_LOW_TH_L)) &&
+	   (diff <= (uint8_t)(TCNT_LOW_TH_H))){
 		_lowCount += diff;
 		if((_recvStat == 0xff) && (_lowCount >= (uint8_t)(TCNT_BIT_PERIOD * 0.7))){ // maybe Start-Bit
 			_recvStat  = FSK_START_BIT;
 			_highCount = 0;
 			_recvBits  = 0;
-#if SOFT_MODEM_DEBUG
-			_errs = 0;
-			_ints = 0;
-#endif
 			OCR2A      = t + (uint8_t)(TCNT_BIT_PERIOD) - _lowCount; // 1 bit period after deteced
 			TIFR2     |= _BV(OCF2A);
 			TIMSK2    |= _BV(OCIE2A);
 		}
 	}
-	else if((diff >= (uint8_t)(TCNT_HIGH_FREQ * 0.8)) &&
-			(diff <= (uint8_t)(TCNT_HIGH_FREQ * 1.2))){
+	else if((diff >= (uint8_t)(TCNT_HIGH_TH_L)) &&
+			(diff <= (uint8_t)(TCNT_HIGH_TH_H))){
 		_highCount += diff;
 	}
 #if SOFT_MODEM_DEBUG
 	else{
 		_errs++;
 	}
-	_ints++;
+	if(_recvStat != 0xff){
+		hisWrite(diff);
+	}
 #endif
 }
 
@@ -159,6 +169,9 @@ ISR(ANALOG_COMP_vect)
 void SoftModem::recv(void)
 {
 	bool high = (_highCount > _lowCount);
+#if SOFT_MODEM_DEBUG
+	hisWrite(high ? 1 : 0);
+#endif
 	if(_recvStat == FSK_START_BIT){	// Start bit
 		if(!high){
 			_recvStat++;
@@ -183,26 +196,27 @@ void SoftModem::recv(void)
 			_recvBuffer[_recvBufferTail] = _recvBits;
 			_recvBufferTail = new_tail;
 		}
+#if SOFT_MODEM_DEBUG
+		hisWrite(_recvBits);
+#endif
 		goto end_recv;
 	}
-	
 	if(high){
-// 		if(_highCount >= (uint8_t)TCNT_BIT_PERIOD)
-// 			_highCount -= (uint8_t)TCNT_BIT_PERIOD;
-// 		else
+ 		if(_highCount >= (uint8_t)TCNT_BIT_PERIOD)
+ 			_highCount -= (uint8_t)TCNT_BIT_PERIOD;
+		else
 			_highCount = 0;
 	}
 	else{
-// 		if(_lowCount >= (uint8_t)TCNT_BIT_PERIOD)
-// 			_lowCount -= (uint8_t)TCNT_BIT_PERIOD;
-// 		else
+ 		if(_lowCount >= (uint8_t)TCNT_BIT_PERIOD)
+ 			_lowCount -= (uint8_t)TCNT_BIT_PERIOD;
+ 		else
 			_lowCount = 0;
 	}
 	return;
 	
  end_recv:
 	_recvStat = 0xff;
-	_lowCount = 0;
 	TIMSK2 &= ~_BV(OCIE2A);
 #if SOFT_MODEM_DEBUG
 	errs = _errs;
@@ -285,6 +299,29 @@ void SoftModem::write(uint8_t data)
 #define SOFT_MODEM_LOW_ADJ  (SOFT_MODEM_BIT_PERIOD%SOFT_MODEM_LOW_USEC)
 #define SOFT_MODEM_HIGH_ADJ (SOFT_MODEM_BIT_PERIOD%SOFT_MODEM_HIGH_USEC)
 
+uint8_t SoftModem::hisAvailable(void)
+{
+	return (_hisTail + HIS_MAX - _hisHead) % HIS_MAX;
+}
+
+int SoftModem::hisRead(void)
+{
+	if(_hisHead == _hisTail)
+		return -1;
+	int d = _his[_hisHead];
+	_hisHead = (_hisHead + 1) % HIS_MAX;
+	return d;	
+}
+
+void SoftModem::hisWrite(uint8_t data)
+{
+	uint8_t new_tail = (_hisTail + 1) % HIS_MAX;
+	if(new_tail != _hisHead){
+		_his[_hisTail] = data;
+		_hisTail = new_tail;
+	}
+}
+
 void SoftModem::handleAnalogComp(bool high)
 {
 	int cnt = (high ? SOFT_MODEM_HIGH_CNT : SOFT_MODEM_LOW_CNT);
@@ -327,13 +364,13 @@ void SoftModem::demodulateTest(void)
 
 	Serial.println("low freq TMC > ");
 	Serial.println(TCNT_LOW_FREQ,DEC);
-	Serial.println(TCNT_LOW_FREQ*0.8,DEC);
-	Serial.println(TCNT_LOW_FREQ*1.2,DEC);
+	Serial.println(TCNT_LOW_TH_L,DEC);
+	Serial.println(TCNT_LOW_TH_H,DEC);
 
 	Serial.println("high freq TMC > ");
 	Serial.println(TCNT_HIGH_FREQ,DEC);
-	Serial.println(TCNT_HIGH_FREQ*0.8,DEC);
-	Serial.println(TCNT_HIGH_FREQ*1.2,DEC);
+	Serial.println(TCNT_HIGH_TH_L,DEC);
+	Serial.println(TCNT_HIGH_TH_H,DEC);
 
 	Serial.print("bit period TMC = ");
 	Serial.println(TCNT_BIT_PERIOD,DEC);
