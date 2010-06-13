@@ -58,6 +58,10 @@ private:
 	uint8_t _lowCount;
 	uint8_t _highCount;
 #if SOFT_MODEM_DEBUG
+#define HIS_MAX 254
+	uint8_t _his[HIS_MAX];
+	uint8_t _hisHead;
+	uint8_t _hisTail;
 	uint8_t _errs;
 	uint16_t _ints;
 #endif
@@ -76,6 +80,9 @@ public:
 #if SOFT_MODEM_DEBUG
 	void handleAnalogComp(bool high);
 	void demodulateTest(void);
+	uint8_t hisAvailable(void);
+	int hisRead(void);
+	void hisWrite(uint8_t data);
 	uint8_t errs;
 	uint16_t ints;
 #endif
