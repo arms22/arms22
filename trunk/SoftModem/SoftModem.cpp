@@ -17,21 +17,37 @@ SoftModem::~SoftModem() {
 	end();
 }
 
+#if F_CPU == 16000000
 #if SOFT_MODEM_BAUD_RATE <= 126
-  #define TIMER_CLOCK_SELECT      (7) // clk/1024
-  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(1024))
+  #define TIMER_CLOCK_SELECT       (7)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(1024))
 #elif SOFT_MODEM_BAUD_RATE <= 315
-  #define TIMER_CLOCK_SELECT      (6) // clk/256
-  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(256))
+  #define TIMER_CLOCK_SELECT       (6)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(256))
 #elif SOFT_MODEM_BAUD_RATE <= 630
-  #define TIMER_CLOCK_SELECT      (5) // clk/128
-  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(128))
+  #define TIMER_CLOCK_SELECT       (5)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(128))
 #elif SOFT_MODEM_BAUD_RATE <= 1225
-  #define TIMER_CLOCK_SELECT      (4) // clk/64
-  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(64))
+  #define TIMER_CLOCK_SELECT       (4)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(64))
 #else
-  #define TIMER_CLOCK_SELECT      (3) // clk/32
-  #define MICROS_PER_TIMER_COUNT  (clockCyclesToMicroseconds(32))
+  #define TIMER_CLOCK_SELECT       (3)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(32))
+#endif
+#else
+#if SOFT_MODEM_BAUD_RATE <= 126
+  #define TIMER_CLOCK_SELECT       (6)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(256))
+#elif SOFT_MODEM_BAUD_RATE <= 315
+  #define TIMER_CLOCK_SELECT       (5)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(128))
+#elif SOFT_MODEM_BAUD_RATE <= 630
+  #define TIMER_CLOCK_SELECT       (4)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(64))
+#else
+  #define TIMER_CLOCK_SELECT       (3)
+  #define MICROS_PER_TIMER_COUNT   (clockCyclesToMicroseconds(32))
+#endif
 #endif
 
 #define SOFT_MODEM_BIT_PERIOD      (1000000/SOFT_MODEM_BAUD_RATE)
@@ -54,8 +70,8 @@ SoftModem::~SoftModem() {
 #define TCNT_LOW_TH_H              (TCNT_LOW_FREQ * 1.20)
 
 #if SOFT_MODEM_DEBUG
-volatile uint8_t *portLEDReg;
-uint8_t portLEDMask;
+static volatile uint8_t *portLEDReg;
+static uint8_t portLEDMask;
 #endif
 
 void SoftModem::begin(void)
@@ -82,7 +98,7 @@ void SoftModem::begin(void)
 #if SOFT_MODEM_HISTORY_ENA
 	_hisHead = _hisTail = 0;
 #endif
-	
+
 	_recvStat = 0xff;
 	_recvBufferHead = _recvBufferTail = 0;
 
@@ -161,6 +177,9 @@ void SoftModem::demodulate(void)
 	}
 	else if(_lastDiff <= (uint8_t)(TCNT_HIGH_TH_H)){
 		_highCount += _lastDiff;
+		if((_recvStat == 0xff) && (_highCount >= (uint8_t)TCNT_BIT_PERIOD)){
+			_lowCount = _highCount = 0;
+		}
 #if SOFT_MODEM_DEBUG
 		uint8_t new_rate = diff * (uint8_t)SOFT_MODEM_HIGH_CNT;
 		highRate = (highRate >> 1) + (highRate >> 2) + (new_rate >> 2);
@@ -295,9 +314,31 @@ void SoftModem::modulate(uint8_t b)
 
 void SoftModem::write(uint8_t data)
 {
+	static unsigned long lastTransmissionTime = 0;
+	if((micros() - lastTransmissionTime) > (uint16_t)(SOFT_MODEM_LOW_USEC*2)){
+		modulate(HIGH);			// Brief carrier tones
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+#if SOFT_MODEM_BAUD_RATE >= 600
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+#endif
+#if SOFT_MODEM_BAUD_RATE >= 1200
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+		modulate(HIGH);
+#endif
+	}
 	uint8_t parity = 0;
-	modulate(HIGH);              // Synchronization Bit
-	modulate(LOW);               // Start Bit  
+	modulate(LOW);							 // Start Bit
 	for(uint8_t mask = 1; mask; mask <<= 1){ // Data Bits
 		if(data & mask){
 			parity++;
@@ -307,9 +348,10 @@ void SoftModem::write(uint8_t data)
 			modulate(LOW);
 		}
 	}
-	modulate(parity & 1); // Parity Bit
-	modulate(HIGH);       // Stop Bit
-	modulate(HIGH);       // Dammy Bit
+	modulate(parity & 1);		// Parity Bit
+	modulate(HIGH);				// Stop Bit
+	modulate(HIGH);				// Extrusion Bit
+ 	lastTransmissionTime = micros();
 }
 
 #if SOFT_MODEM_HISTORY_ENA
