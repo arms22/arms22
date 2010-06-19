@@ -29,8 +29,8 @@ public:
 	virtual void write(const uint8_t *buffer, size_t size);
 	bool resize(uint32_t size);
 #endif
-	int32_t seekToEnd(int32_t offset = 0);
-	int32_t seekToOffset(int32_t offset);
+	bool seekToEnd(int32_t offset = 0);
+	bool seekToOffset(int32_t offset);
 	void close(void);
 	
 private:

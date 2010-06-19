@@ -4,6 +4,17 @@ CameraC328R camera;
 // 写真保存用
 File picture;
 
+// 最後に同期した時間
+unsigned long lastSyncTime = 0;
+
+void camera_sync(void)
+{
+  if(millis() - lastSyncTime > 5000){
+    camera.sync();
+    lastSyncTime = millis();
+  }
+}
+
 void getJPEGPicture_callback( uint16_t pictureSize, uint16_t packageSize, uint16_t packageCount, byte* package )
 {
   green(HIGH);
@@ -16,13 +27,16 @@ int photoNumber(void)
   int num;
   num = EEPROM.read(0);
   num |= EEPROM.read(1) << 8;
-  num++;
-  if( num > 9999 ){
-    num = 0;
-  }
-  EEPROM.write(0,num & 0xff);
-  EEPROM.write(1,num >> 8);
   return num;
+}
+
+void setPhotoNumber(int number)
+{
+  if( number > 9999 ){
+    number = 0;
+  }
+  EEPROM.write(0,number & 0xff);
+  EEPROM.write(1,number >> 8);  
 }
 
 bool getJPEGPicture(void)
@@ -39,7 +53,7 @@ bool getJPEGPicture(void)
     goto camera_error;
   }
 
-  if( !camera.setPackageSize( 64 ) ){
+  if( !camera.setPackageSize( 100 ) ){
     goto camera_error;
   }
 
@@ -54,6 +68,8 @@ bool getJPEGPicture(void)
   attention(LOW);
 
   photoNo = photoNumber();
+  setPhotoNumber(photoNo + 1);
+
   //  snprintf(buf, sizeof(buf), "/%04d", (photoNo / 500) * 500);
   //  if( !FatFs.changeDirectory(buf) ){
   //    FatFs.changeDirectory("/");
@@ -96,6 +112,5 @@ camera_error:
     return false;
   }
 }
-
 
 

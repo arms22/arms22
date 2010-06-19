@@ -38,18 +38,16 @@ void setup()
   button.update();
 
   // 日時初期化 2010/4/1 9:00:00
-  setTime(9, 0, 0, 25, 4, 2010);
+  setTime(9, 0, 0, 22, 5, 2010);
 
   // FATファイルシステム初期化
   if( FatFs.initialize() ){
+
     // 写真保存用フォルダ作成
     char dir[] = "photos";
     FatFs.createDirectory(dir);
 
-    // 写真保存用フォルダへ移動
-    if( !FatFs.changeDirectory(dir) ){
-      goto init_error;
-    }
+    green(HIGH);
   }
   else{
 init_error:
@@ -58,6 +56,7 @@ init_error:
   }
 }
 
+unsigned long last_button_press = 0;
 unsigned long last_heartbeat = 0;
 unsigned long last_takepict  = 0;
 unsigned long low_duration   = 0;
@@ -65,6 +64,11 @@ bool interval_mode           = false;
 bool gps_logging             = false;
 bool interval_mode_ind       = false;
 bool gps_logging_ind         = false;
+bool power_save              = true;
+
+const uint8_t ledFadeStepTable[] = {
+  0, 4, 8, 16, 32, 64, 128, 192, 224, 255, 255, 224, 192, 128, 64, 32, 16, 8, 4, 0,
+};
 
 void loop()
 {
@@ -76,81 +80,111 @@ void loop()
     }
   }
 
-  if( button.update() ){
-    // ボタン Release
-    if( button.read() == HIGH ){
-      heartbeat();
-      // 5.5秒以上の長押し
-      if( low_duration > 5500 ){
-        if( gps_logging ){
-          // GPSログ OFF
-          gps_logging = false;
-          gps_powerOff();        
-        }
-        else{
-          // GPSログ ON
-          gps_logging = true;
-          gps_powerOn();
-        }
-      }
-      // 2.5秒以上の長押し
-      else if( low_duration > 2500 ){
-        // インターバル撮影 ON
-        interval_mode = !interval_mode;
-      }
-      // 短押し
-      else {
-        // 通常撮影
-        takePicture();
-        button.update();
-
-        // インターバル撮影を遅らせる
-        last_takepict = millis();
-      }
+  if( power_save ){
+    uint8_t fade_index = (millis() >> 6) & 0x3f;
+    if(fade_index < sizeof(ledFadeStepTable)){
+      analogWrite(ledGrnPin, ledFadeStepTable[fade_index]);
     }
-    // ボタン Push
     else{
-      gps_logging_ind = interval_mode_ind = false;
+      digitalWrite(ledGrnPin, LOW);
     }
-  }
 
-  // 長押し中
-  if( button.read() == LOW ){
-    // 長押しの時間を保存
-    low_duration = button.duration();
-
-    // インターバル撮影を遅らせる
-    last_takepict = millis();
-
-    // ハートビートを遅らせる
-    last_heartbeat = millis();
-
-    // タイミングインジケート
-    if( low_duration > 5500 && !gps_logging_ind){
-      heartbeat();
-      gps_logging_ind = true;
-    }
-    else if( low_duration > 2500 && !interval_mode_ind ){
-      heartbeat();
-      interval_mode_ind = true;
-    }
-  }
-
-  // インターバル撮影モードなら最後の撮影から3秒経過していたら撮影する
-  if( interval_mode ){
-    if( millis() - last_takepict > 3000 ){
-      takePicture();
-      last_takepict = millis();
+    if( button.update() ){
+      if( button.read() == HIGH ){
+        last_button_press = millis();
+        power_save = false;
+        green(LOW);
+      }
     }
   }
   else{
-    // ハートビート
-    if(millis() - last_heartbeat > 3000){
-      heartbeat();
+
+    // スリープしないように定期的にシンクコマンドを送る
+    camera_sync();
+
+    if( button.update() ){
+      // ボタン Release
+      if( button.read() == HIGH ){
+        heartbeat();
+        // 5.5秒以上の長押し
+        if( low_duration > 5500 ){
+          if( gps_logging ){
+            // GPSログ OFF
+            gps_logging = false;
+            gps_powerOff();        
+          }
+          else{
+            // GPSログ ON
+            gps_logging = true;
+            gps_powerOn();
+          }
+        }
+        // 2.5秒以上の長押し
+        else if( low_duration > 2500 ){
+          // インターバル撮影 ON
+          interval_mode = !interval_mode;
+        }
+        // 短押し
+        else {
+          // 通常撮影
+          takePicture();
+          button.update();
+
+          // インターバル撮影を遅らせる
+          last_takepict = millis();
+        }
+      }
+      // ボタン Push
+      else{
+        gps_logging_ind = interval_mode_ind = false;
+      }
+    }
+
+    // 長押し中
+    if( button.read() == LOW ){
+      // 長押しの時間を保存
+      low_duration = button.duration();
+
+      // インターバル撮影を遅らせる
+      last_takepict = millis();
+
+      // ハートビートを遅らせる
       last_heartbeat = millis();
+
+      // 
+      last_button_press = millis();
+
+      // タイミングインジケート
+      if( low_duration > 5500 && !gps_logging_ind){
+        heartbeat();
+        gps_logging_ind = true;
+      }
+      else if( low_duration > 2500 && !interval_mode_ind ){
+        heartbeat();
+        interval_mode_ind = true;
+      }
+    }
+
+    // インターバル撮影モードなら最後の撮影から3秒経過していたら撮影する
+    if( interval_mode ){
+      if( millis() - last_takepict > 3000 ){
+        takePicture();
+        last_takepict = millis();
+      }
+    }
+    else{
+      // ハートビート
+      if(millis() - last_heartbeat > 3000){
+        heartbeat();
+        last_heartbeat = millis();
+      }
+
+      // 最後の操作から30秒経過していたらパワーセーブモードに入る
+      if( millis() - last_button_press > 60000 ){
+        power_save = true;
+      }
     }
   }
-
   sleep(1);
 }
 
@@ -217,5 +251,4 @@ void get_datetime(uint16_t* y, uint8_t* m, uint8_t* d, uint8_t* h, uint8_t* n, u
   *s = second();
 }
 #endif
-
 
