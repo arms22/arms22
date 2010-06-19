@@ -5,8 +5,8 @@
 #include <inttypes.h>
 
 //#define SOFT_MODEM_BAUD_RATE   (126)
-//#define SOFT_MODEM_LOW_FREQ    (630)
-//#define SOFT_MODEM_HIGH_FREQ   (1260)
+//#define SOFT_MODEM_LOW_FREQ    (882)
+//#define SOFT_MODEM_HIGH_FREQ   (1764)
 //#define SOFT_MODEM_MAX_RX_BUFF (4)
 
 //#define SOFT_MODEM_BAUD_RATE   (100)
@@ -14,15 +14,15 @@
 //#define SOFT_MODEM_HIGH_FREQ   (1600)
 //#define SOFT_MODEM_MAX_RX_BUFF (4)
 
-//#define SOFT_MODEM_BAUD_RATE   (315)
-//#define SOFT_MODEM_LOW_FREQ    (1575)
-//#define SOFT_MODEM_HIGH_FREQ   (3150)
-//#define SOFT_MODEM_MAX_RX_BUFF (8)
+// #define SOFT_MODEM_BAUD_RATE   (315)
+// #define SOFT_MODEM_LOW_FREQ    (1575)
+// #define SOFT_MODEM_HIGH_FREQ   (3150)
+// #define SOFT_MODEM_MAX_RX_BUFF (8)
 
-//#define SOFT_MODEM_BAUD_RATE   (630)
-//#define SOFT_MODEM_LOW_FREQ    (3150)
-//#define SOFT_MODEM_HIGH_FREQ   (6300)
-//#define SOFT_MODEM_MAX_RX_BUFF (16)
+// #define SOFT_MODEM_BAUD_RATE   (630)
+// #define SOFT_MODEM_LOW_FREQ    (3150)
+// #define SOFT_MODEM_HIGH_FREQ   (6300)
+// #define SOFT_MODEM_MAX_RX_BUFF (16)
 
 //#define SOFT_MODEM_BAUD_RATE   (600)
 //#define SOFT_MODEM_LOW_FREQ    (2666)
@@ -34,12 +34,12 @@
 #define SOFT_MODEM_HIGH_FREQ   (7350)
 #define SOFT_MODEM_MAX_RX_BUFF (32)
 
-//  Brief carrier tone before each transmission (HIGH)
+//  Brief carrier tone before each transmission
 //  1 start bit (LOW)
 //  8 data bits, LSB first
 //  1 even parity bit
 //  1 stop bit (HIGH)
-//  Brief carrier tone after each transmission (HIGH)
+//  1 extrusion bit (HIGH)
 
 #define SOFT_MODEM_DEBUG       (0)
 #define SOFT_MODEM_HISTORY_ENA (0)
