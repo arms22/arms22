@@ -38,7 +38,7 @@ struct FSKByteQueue: public lock_free::queue<char> {
 	if(self = [super init])
 	{
 		receivers = [[MultiDelegate alloc] init];
-		
+		[self reset];
 		byteQueue = new FSKByteQueue();
 	}
 	
