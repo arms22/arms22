@@ -18,8 +18,7 @@
 #define US_TO_SAMPLES(__microsec__) (unsigned)(((UInt64)(__microsec__) * SAMPLE_RATE) / 1000000)
 #define MS_TO_SAMPLES(__millisec__) (unsigned)(((UInt64)(__millisec__) * SAMPLE_RATE) / 1000)
 
-#define EDGE_DIFF_THRESHOLD		4096
-//#define EDGE_DIFF_THRESHOLD		8192
+#define EDGE_DIFF_THRESHOLD		8192
 #define EDGE_SLOPE_THRESHOLD	256
 #define EDGE_MAX_WIDTH			8
 #define IDLE_CHECK_PERIOD		MS_TO_SAMPLES(10)
@@ -60,7 +59,7 @@ static int analyze( SAMPLE *inputBuffer,
 				// The edge is significant
 				[analyzer edge:data->edgeDiff
 						 width:data->edgeWidth
-					  interval:(data->lastEdgeWidth + data->plateauWidth + data->plateauWidth + data->edgeWidth) >> 1];
+					  interval:data->plateauWidth + data->edgeWidth];
 				
 				// Save the edge
 				data->lastEdgeSign = data->edgeSign;
