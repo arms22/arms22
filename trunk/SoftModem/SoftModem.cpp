@@ -293,23 +293,33 @@ int SoftModem::read(void)
 
 void SoftModem::modulate(uint8_t b)
 {
-	uint8_t cnt;
-	uint16_t half;
+	uint8_t cnt,tcnt,adj;
 	if(b){
 		cnt = (uint8_t)(SOFT_MODEM_HIGH_CNT * 2);
-		half = (uint16_t)(SOFT_MODEM_HIGH_USEC / 2);
+		tcnt = (uint8_t)((TCNT_HIGH_FREQ+1) / 2);
+#if SOFT_MODEM_HIGH_ADJ > 4
+		adj = (uint8_t)(SOFT_MODEM_HIGH_ADJ / 2);
+#endif
 	}else{
 		cnt = (uint8_t)(SOFT_MODEM_LOW_CNT * 2);
-		half = (uint16_t)(SOFT_MODEM_LOW_USEC / 2);
+		tcnt = (uint8_t)((TCNT_LOW_FREQ+1) / 2);
+#if SOFT_MODEM_LOW_ADJ > 4
+		adj = (uint8_t)(SOFT_MODEM_LOW_ADJ / 2);
+#endif
 	}
 	do {
 		cnt--;
-		delayMicroseconds(half);
+		{
+			OCR2B += tcnt;
+			TIFR2 |= _BV(OCF2B);
+			while(!(TIFR2 & _BV(OCF2B)));
+		}
 		*_txPortReg ^= _txPortMask;
-#if SOFT_MODEM_DEBUG
-		*portLEDReg ^= portLEDMask;
-#endif
 	} while (cnt);
+#if (SOFT_MODEM_HIGH_ADJ > 4) || (SOFT_MODEM_LOW_ADJ > 4)
+	if(adj)
+		delayMicroseconds(adj);
+#endif
 }
 
 void SoftModem::write(uint8_t data)
