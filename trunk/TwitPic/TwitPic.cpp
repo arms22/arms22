@@ -14,15 +14,15 @@
 
 
 // Your TwitPic API Key
-#define TWITPIC_API_KEY                 "6fb3a281fe292fa5fde5dd794f2e05da"
+#define TWITPIC_API_KEY                 "Your TwitPic API Key"
 
 // Your Twitter Consumer key/Consumer Secret
-#define CONSUMER_KEY                    "pPdNoeBBk4nsKNBFFzl0lg"
-#define CONSUMER_SECRET                 "uwGtK2CFS2dWkAtuGtBiZKcB7SE35bWTJIHQlciJQs"
+#define CONSUMER_KEY                    "Your Consumer key"
+#define CONSUMER_SECRET                 "Your Consumer Secret"
 
 // Your Twitter Access Token (oauth_token)/Access Token Secret (oauth_token_secret)
-#define ACCESS_TOKEN                    "7680122-ubBoUYUBhzkQwYFzET29pn9VJwXxzWQOHfGOCnlsKA"
-#define ACCESS_TOKEN_SECRET             "aT1uVbk9Anw8ozZ0yVy4YP9QEvt9hSU7D1mgPpyYyJg"
+#define ACCESS_TOKEN                    "Your Access Token"
+#define ACCESS_TOKEN_SECRET             "Your Access Token Secret"
 
 
 
@@ -36,7 +36,7 @@
 #define IMAGE_CONTENT_TYPE				"image/jpeg"
 #define CRLF							"\r\n"
 
-#define SERIAL_DEBUG 1
+#define SERIAL_DEBUG 0
 #if SERIAL_DEBUG
 #include <HardwareSerial.h>
 #define DEBUG_PRINT(c)   Serial.print(c)
@@ -53,9 +53,9 @@ TwitPic::TwitPic()
 {
 }
 
-int TwitPic::uploadAndPost(const char *message,
-						   uint32_t (*imageTransfer)(Client*client),
-						   bool post)
+int TwitPic::upload(const char *message,
+					uint32_t (*imageTransfer)(Client*client),
+					bool post)
 {
 	int ret = -1;
 	DEBUG_PRINT("connecting...");
@@ -70,7 +70,7 @@ int TwitPic::uploadAndPost(const char *message,
 		length += 73 + sizeof("oauth_token"     ACCESS_TOKEN) - 1;
 		length += 73 + sizeof("oauth_secret"    ACCESS_TOKEN_SECRET) - 1;
 		length += 80 + strlen(message);
- 		//length += 175 + imageTransfer(0);
+ 		length += 175 + imageTransfer(0);
 		length += 32;
 		
 		if(post){
@@ -144,30 +144,21 @@ int TwitPic::uploadAndPost(const char *message,
 	return ret;
 }
 
-int TwitPic::upload(const char *message,
-					uint32_t (*imageTransfer)(Client*client))
+int TwitPic::uploadAndPost(const char *message,
+						   uint32_t (*imageTransfer)(Client *client))
 {
-	return uploadAndPost(message, imageTransfer, false);
+	upload(message, imageTransfer, true);
 }
 
 int TwitPic::waitResponses(void)
 {
 	int ret = -1;
 	DEBUG_PRINTLN("waitResponses");
-	if(read_until_match_P( PSTR("rsp stat") )){ // stat or status
-		if(read_until_match_P( PSTR("=\"") )){
-			char buf[5];
-			if(read(buf,4) == 4){
-				if(strncmp_P(buf, PSTR("ok"), 2) == 0){
-					ret = 0;
-				}
-				else if(strncmp_P(buf, PSTR("fail"), 4) == 0){
-					if(read_until_match_P( PSTR("err code=\"") )){
-						if(read(buf,4) == 4){
-							ret = -atoi(buf);
-						}
-					}
-				}
+	if(read_until_match_P( PSTR("HTTP/1.1 ") )){
+		char buf[6];
+		if(read(buf,6) == 6){
+			if(strncmp_P(buf, PSTR("200 OK"), 6) == 0){
+				ret = 0;
 			}
 		}
 	}

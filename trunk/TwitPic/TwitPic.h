@@ -18,10 +18,10 @@ class TwitPic
 public:
 	TwitPic();
 	int upload(const char *message,
-			   uint32_t (*imageTransfer)(Client*client));
+			   uint32_t (*imageTransfer)(Client *client),
+			   bool post = false);
 	int uploadAndPost(const char *message,
-					  uint32_t (*imageTransfer)(Client *client),
-					  bool post = true);
+					  uint32_t (*imageTransfer)(Client *client));
 	int waitResponses(void);
 private:
 	int read(char *buf,int size);
