@@ -11,32 +11,14 @@
 #include <stdlib.h>
 #include "TwitPic.h"
 
-
-
-// Your TwitPic API Key
-#define TWITPIC_API_KEY                 "Your TwitPic API Key"
-
-// Your Twitter Consumer key/Consumer Secret
-#define CONSUMER_KEY                    "Your Consumer key"
-#define CONSUMER_SECRET                 "Your Consumer Secret"
-
-// Your Twitter Access Token (oauth_token)/Access Token Secret (oauth_token_secret)
-#define ACCESS_TOKEN                    "Your Access Token"
-#define ACCESS_TOKEN_SECRET             "Your Access Token Secret"
-
-
-
 #define TWITPIC_UPLADO_API_URL			"/1/upload.xml"
 #define TWITPIC_UPLADO_AND_POST_API_URL "/1/uploadAndPost.xml"
 
-#define BOUNDARY						"oniudrArofyrarbilciPtiwT"
+#define BOUNDARY						"8e3eom6wee"
 #define HEADER							"--" BOUNDARY
 #define FOOTER							"--" BOUNDARY "--"
-#define IMAGE_FILE_NAME					"photo_taken_with_arduino.jpg"
-#define IMAGE_CONTENT_TYPE				"image/jpeg"
-#define CRLF							"\r\n"
 
-#define SERIAL_DEBUG 0
+#define SERIAL_DEBUG 1
 #if SERIAL_DEBUG
 #include <HardwareSerial.h>
 #define DEBUG_PRINT(c)   Serial.print(c)
@@ -51,10 +33,30 @@ static uint8_t server[] = {174, 36, 58, 233}; // api.twitpic.com
 TwitPic::TwitPic()
 	: client(server, 80)
 {
+	preCalcedContentLength = 59
+	+ sizeof("key") - 1
+	+ strlen_P(twitpic_api_key)
+	+ 59
+	+ sizeof("consumer_token") - 1
+	+ strlen_P(consumer_key)
+	+ 59
+	+ sizeof("consumer_secret") - 1
+	+ strlen_P(consumer_secret)
+	+ 59
+	+ sizeof("oauth_token") - 1
+	+ strlen_P(access_token)
+	+ 59
+	+ sizeof("oauth_secret") - 1
+	+ strlen_P(access_token_secret)
+	+ 59
+	+ sizeof("message") - 1
+	+ 144// Image Data
+	+ 18;// Footer
 }
 
 int TwitPic::upload(const char *message,
-					uint32_t (*imageTransfer)(Client*client),
+					uint32_t imageLength,
+					void (*imageTransfer)(Client *client),
 					bool post)
 {
 	int ret = -1;
@@ -63,55 +65,48 @@ int TwitPic::upload(const char *message,
 	if (client.connect()) {
 		DEBUG_PRINTLN("ok\r\npost image");
 		
-		uint32_t length = 0;
-		length += 73 + sizeof("key"             TWITPIC_API_KEY) - 1;
-		length += 73 + sizeof("consumer_token"  CONSUMER_KEY) - 1;
-		length += 73 + sizeof("consumer_secret" CONSUMER_SECRET) - 1;
-		length += 73 + sizeof("oauth_token"     ACCESS_TOKEN) - 1;
-		length += 73 + sizeof("oauth_secret"    ACCESS_TOKEN_SECRET) - 1;
-		length += 80 + strlen(message);
- 		length += 175 + imageTransfer(0);
-		length += 32;
-		
+		// HTTP Request
 		if(post){
 			println_P( PSTR("POST " TWITPIC_UPLADO_AND_POST_API_URL " HTTP/1.0") );
 		}else{
 			println_P( PSTR("POST " TWITPIC_UPLADO_API_URL " HTTP/1.0") );
 		}
+		
+		// HTTP Headers
 		println_P( PSTR("Content-Type: multipart/form-data; boundary=" BOUNDARY) );
 		print_P(   PSTR("Content-Length: ") );
-		println(length);
+		println(preCalcedContentLength + strlen(message) + imageLength);
 		println();
 		
 		// Post Parameter
 		println_P( PSTR(HEADER) );
 		println_P( PSTR("Content-Disposition: form-data; name=\"key\"") );
 		println();
-		println_P( PSTR(TWITPIC_API_KEY) );
+		println_P( twitpic_api_key );
 		
 		// Post Parameter
 		println_P( PSTR(HEADER) );
 		println_P( PSTR("Content-Disposition: form-data; name=\"consumer_token\"") );
 		println();
-		println_P( PSTR(CONSUMER_KEY) );
+		println_P( consumer_key );
 		
 		// Post Parameter
 		println_P( PSTR(HEADER) );
 		println_P( PSTR("Content-Disposition: form-data; name=\"consumer_secret\"") );
 		println();
-		println_P( PSTR(CONSUMER_SECRET) );
+		println_P( consumer_secret );
 		
 		// Post Parameter
 		println_P( PSTR(HEADER) );
 		println_P( PSTR("Content-Disposition: form-data; name=\"oauth_token\"") );
 		println();
-		println_P( PSTR(ACCESS_TOKEN) );
+		println_P( access_token );
 		
 		// Post Parameter
 		println_P( PSTR(HEADER) );
 		println_P( PSTR("Content-Disposition: form-data; name=\"oauth_secret\"") );
 		println();
-		println_P( PSTR(ACCESS_TOKEN_SECRET) );
+		println_P( access_token_secret );
 		
 		// Post Parameter
 		println_P( PSTR(HEADER) );
@@ -122,8 +117,8 @@ int TwitPic::upload(const char *message,
 		// Image Data
 		if(imageTransfer){
 			println_P( PSTR(HEADER) );
-			println_P( PSTR("Content-Disposition: file; name=\"media\"; filename=\"" IMAGE_FILE_NAME "\"") );
-			println_P( PSTR("Content-Type: " IMAGE_CONTENT_TYPE) );
+			println_P( PSTR("Content-Disposition: file; name=\"media\"; filename=\"img0000.jpg\"") );
+			println_P( PSTR("Content-Type: image/jpeg") );
 			println_P( PSTR("Content-Transfer-Encoding: binary") );
 			println();
 			imageTransfer(&client);
@@ -145,9 +140,10 @@ int TwitPic::upload(const char *message,
 }
 
 int TwitPic::uploadAndPost(const char *message,
-						   uint32_t (*imageTransfer)(Client *client))
+						   uint32_t imageLength,
+						   void(*imageTransfer)(Client *client))
 {
-	upload(message, imageTransfer, true);
+	upload(message, imageLength, imageTransfer, true);
 }
 
 int TwitPic::waitResponses(void)
