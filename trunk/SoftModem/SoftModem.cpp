@@ -177,7 +177,7 @@ void SoftModem::demodulate(void)
 	}
 	else if(_lastDiff <= (uint8_t)(TCNT_HIGH_TH_H)){
 		_highCount += _lastDiff;
-		if((_recvStat == 0xff) && (_highCount >= (uint8_t)TCNT_BIT_PERIOD)){
+		if((_recvStat == 0xff) && (_highCount >= (uint8_t)(TCNT_BIT_PERIOD))){
 			_lowCount = _highCount = 0;
 		}
 #if SOFT_MODEM_DEBUG
@@ -200,14 +200,26 @@ void SoftModem::demodulate(void)
 ISR(ANALOG_COMP_vect)
 {
 	SoftModem *act = SoftModem::activeObject;
-	if(act){
-		act->demodulate();
-	}
+	act->demodulate();
 }
 
 void SoftModem::recv(void)
 {
-	bool high = (_highCount > _lowCount);
+	uint8_t high;
+	if(_highCount > _lowCount){
+ 		if(_highCount >= (uint8_t)TCNT_BIT_PERIOD)
+ 			_highCount -= (uint8_t)TCNT_BIT_PERIOD;
+		else
+			_highCount = 0;
+		high = 0x80;
+	}
+	else{
+ 		if(_lowCount >= (uint8_t)TCNT_BIT_PERIOD)
+ 			_lowCount -= (uint8_t)TCNT_BIT_PERIOD;
+ 		else
+			_lowCount = 0;
+		high = 0x00;
+	}
 #if SOFT_MODEM_HISTORY_ENA
 	hisWrite(high ? 1 : 0);
 #endif
@@ -218,19 +230,16 @@ void SoftModem::recv(void)
 			goto end_recv;
 		}
 	}
-	else if(_recvStat >= FSK_D0_BIT &&
-			_recvStat <= FSK_D7_BIT) { // Data bits
+	else if(_recvStat <= FSK_D7_BIT) { // Data bits
 		_recvBits >>= 1;
-		if(high){
-			_recvBits |= 0x80;
-		}
+		_recvBits |= high;
 		_recvStat++;
 	}
 	else if(_recvStat == FSK_PARITY_BIT){ // Parity bit
 		_recvStat++;
 	}
 	else if(_recvStat == FSK_STOP_BIT){	// Stop bit
-		uint8_t new_tail = (_recvBufferTail + 1) % SOFT_MODEM_MAX_RX_BUFF;
+		uint8_t new_tail = (_recvBufferTail + 1) & (SOFT_MODEM_MAX_RX_BUFF - 1);
 		if(new_tail != _recvBufferHead){
 			_recvBuffer[_recvBufferTail] = _recvBits;
 			_recvBufferTail = new_tail;
@@ -240,38 +249,24 @@ void SoftModem::recv(void)
 #endif
 		goto end_recv;
 	}
-	if(high){
- 		if(_highCount >= (uint8_t)TCNT_BIT_PERIOD)
- 			_highCount -= (uint8_t)TCNT_BIT_PERIOD;
-		else
-			_highCount = 0;
-	}
 	else{
- 		if(_lowCount >= (uint8_t)TCNT_BIT_PERIOD)
- 			_lowCount -= (uint8_t)TCNT_BIT_PERIOD;
- 		else
-			_lowCount = 0;
-	}
-	return;
-	
- end_recv:
-	_recvStat = 0xff;
-	TIMSK2 &= ~_BV(OCIE2A);
+	end_recv:
+		_recvStat = 0xff;
+		TIMSK2 &= ~_BV(OCIE2A);
 #if SOFT_MODEM_DEBUG
-	errs = _errs;
-	_errs = 0;
-	ints = _ints;
-	_ints = 0;
+		errs = _errs;
+		_errs = 0;
+		ints = _ints;
+		_ints = 0;
 #endif
+	}
 }
 
 ISR(TIMER2_COMPA_vect)
 {
 	OCR2A += (uint8_t)TCNT_BIT_PERIOD;
 	SoftModem *act = SoftModem::activeObject;
-	if(act){
-		act->recv();
-	}
+	act->recv();
 #if SOFT_MODEM_DEBUG
 	*portLEDReg ^= portLEDMask;
 #endif  
@@ -279,7 +274,7 @@ ISR(TIMER2_COMPA_vect)
 
 uint8_t SoftModem::available(void)
 {
-	return (_recvBufferTail + SOFT_MODEM_MAX_RX_BUFF - _recvBufferHead) % SOFT_MODEM_MAX_RX_BUFF;
+	return (_recvBufferTail + SOFT_MODEM_MAX_RX_BUFF - _recvBufferHead) & (SOFT_MODEM_MAX_RX_BUFF - 1);
 }
 
 int SoftModem::read(void)
@@ -287,25 +282,21 @@ int SoftModem::read(void)
 	if(_recvBufferHead == _recvBufferTail)
 		return -1;
 	int d = _recvBuffer[_recvBufferHead];
-	_recvBufferHead = (_recvBufferHead + 1) % SOFT_MODEM_MAX_RX_BUFF;
+	_recvBufferHead = (_recvBufferHead + 1) & (SOFT_MODEM_MAX_RX_BUFF - 1);
 	return d;
 }
 
 void SoftModem::modulate(uint8_t b)
 {
-	uint8_t cnt,tcnt,adj;
+	uint8_t cnt,tcnt,tcnt2,adj;
 	if(b){
-		cnt = (uint8_t)(SOFT_MODEM_HIGH_CNT * 2);
-		tcnt = (uint8_t)((TCNT_HIGH_FREQ+1) / 2);
-#if SOFT_MODEM_HIGH_ADJ > 4
-		adj = (uint8_t)(SOFT_MODEM_HIGH_ADJ / 2);
-#endif
+		cnt = (uint8_t)(SOFT_MODEM_HIGH_CNT);
+		tcnt2 = (uint8_t)(TCNT_HIGH_FREQ / 2);
+		tcnt = (uint8_t)(TCNT_HIGH_FREQ) - tcnt2;
 	}else{
-		cnt = (uint8_t)(SOFT_MODEM_LOW_CNT * 2);
-		tcnt = (uint8_t)((TCNT_LOW_FREQ+1) / 2);
-#if SOFT_MODEM_LOW_ADJ > 4
-		adj = (uint8_t)(SOFT_MODEM_LOW_ADJ / 2);
-#endif
+		cnt = (uint8_t)(SOFT_MODEM_LOW_CNT);
+		tcnt2 = (uint8_t)(TCNT_LOW_FREQ / 2);
+		tcnt = (uint8_t)(TCNT_LOW_FREQ) - tcnt2;
 	}
 	do {
 		cnt--;
@@ -315,11 +306,13 @@ void SoftModem::modulate(uint8_t b)
 			while(!(TIFR2 & _BV(OCF2B)));
 		}
 		*_txPortReg ^= _txPortMask;
+		{
+			OCR2B += tcnt2;
+			TIFR2 |= _BV(OCF2B);
+			while(!(TIFR2 & _BV(OCF2B)));
+		}
+		*_txPortReg ^= _txPortMask;
 	} while (cnt);
-#if (SOFT_MODEM_HIGH_ADJ > 4) || (SOFT_MODEM_LOW_ADJ > 4)
-	if(adj)
-		delayMicroseconds(adj);
-#endif
 }
 
 void SoftModem::write(uint8_t data)
@@ -360,7 +353,7 @@ void SoftModem::write(uint8_t data)
 	}
 	modulate(parity & 1);		// Parity Bit
 	modulate(HIGH);				// Stop Bit
-	modulate(HIGH);				// Extrusion Bit
+	modulate(HIGH);				// Push Bit
  	lastTransmissionTime = micros();
 }
 
