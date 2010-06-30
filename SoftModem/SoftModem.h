@@ -34,12 +34,17 @@
 #define SOFT_MODEM_HIGH_FREQ   (7350)
 #define SOFT_MODEM_MAX_RX_BUFF (32)
 
+//#define SOFT_MODEM_BAUD_RATE   (2450)
+//#define SOFT_MODEM_LOW_FREQ    (7350)
+//#define SOFT_MODEM_HIGH_FREQ   (14700)
+//#define SOFT_MODEM_MAX_RX_BUFF (32)
+
 //  Brief carrier tone before each transmission
 //  1 start bit (LOW)
 //  8 data bits, LSB first
 //  1 even parity bit
 //  1 stop bit (HIGH)
-//  1 extrusion bit (HIGH)
+//  1 push bit (HIGH)
 
 #define SOFT_MODEM_DEBUG       (0)
 #define SOFT_MODEM_HISTORY_ENA (0)
