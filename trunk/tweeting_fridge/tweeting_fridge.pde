@@ -23,7 +23,18 @@ unsigned long take_picture_time;
 byte mac[] = { 
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-TwitPic twitpic("YourID","Password");
+// Your TwitPic API Key(key)
+const prog_char twitpic_api_key[] PROGMEM     = "Your TwitPic API Key";
+
+// Your Twitter Consumer key(consumer_token)/Consumer Secret(consumer_secret)
+const prog_char consumer_key[] PROGMEM        = "Your Consumer key";
+const prog_char consumer_secret[] PROGMEM     = "Your Consumer Secret";
+
+// Your Twitter Access Token (oauth_token)/Access Token Secret (oauth_token_secret)
+const prog_char access_token[] PROGMEM        = "Your Access Token";
+const prog_char access_token_secret[] PROGMEM = "Your Access Token Secret";
+
+TwitPic twitpic;
 
 #define USB_BAUD 115200
 #define CAMERA_BAUD 14400
@@ -158,13 +169,10 @@ void getJPEGPicture_callback( uint16_t pictureSize, uint16_t packageSize, uint16
   led_toggle();
 }
 
-uint32_t c328rImageTransfer(Client *client)
+void c328rImageTransfer(Client *client)
 {
-  if(client){
-    targetClient = client;
-    camera.getJPEGPictureData( &getJPEGPicture_callback );
-  }
-  return pictureSize;
+  targetClient = client;
+  camera.getJPEGPictureData( &getJPEGPicture_callback );
 }
 
 void takePicture(void)
@@ -201,8 +209,8 @@ void takePicture(void)
   }
 
   Serial.print( "\nbegin upload..." );
-  //ret = twitpic.upload(&c328rImageTransfer);
-  ret = twitpic.uploadAndPost("Hello Maker! I am Refrigerator! #tweetingfridge", &c328rImageTransfer);
+  //ret = twitpic.upload(pictureSize, &c328rImageTransfer);
+  ret = twitpic.uploadAndPost("Hello Maker! I am Refrigerator! #tweetingfridge", pictureSize, &c328rImageTransfer);
   if( ret < 0 ){
     Serial.print("post failed");
     Serial.println(ret);
@@ -218,4 +226,5 @@ void takePicture(void)
 camera_error:
   ;
 }
+
 
