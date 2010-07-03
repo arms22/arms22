@@ -24,8 +24,8 @@ public:
 	int uploadAndPost(const char *message,
 					  uint32_t imageLength,
 					  void(*imageTransfer)(Client *client));
-	int waitResponses(void);
 private:
+	int waitResponses(void);
 	int read(char *buf,int size);
 	int read_until_match_P(const prog_char *str);
 	void print_P(const prog_char *str);

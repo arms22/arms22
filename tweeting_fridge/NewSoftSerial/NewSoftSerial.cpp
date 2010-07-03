@@ -349,10 +349,10 @@ NewSoftSerial::NewSoftSerial(uint8_t receivePin, uint8_t transmitPin, bool inver
   _rx_delay_stopbit(0),
   _tx_delay(0),
   _buffer_overflow(false),
-  _inverse_logic(inverse_logic)
+  _inverse_logic(inverse_logic),
+  _receivePin(receivePin),
+  _transmitPin(transmitPin)
 {
-  setTX(transmitPin);
-  setRX(receivePin);
 }
 
 //
@@ -363,8 +363,9 @@ NewSoftSerial::~NewSoftSerial()
   end();
 }
 
-void NewSoftSerial::setTX(uint8_t tx)
+void NewSoftSerial::setTX(void)
 {
+  uint8_t tx = _transmitPin;
   pinMode(tx, OUTPUT);
   digitalWrite(tx, HIGH);
   _transmitBitMask = digitalPinToBitMask(tx);
@@ -372,12 +373,12 @@ void NewSoftSerial::setTX(uint8_t tx)
   _transmitPortRegister = portOutputRegister(port);
 }
 
-void NewSoftSerial::setRX(uint8_t rx)
+void NewSoftSerial::setRX(void)
 {
+  uint8_t rx = _receivePin;
   pinMode(rx, INPUT);
   if (!_inverse_logic)
     digitalWrite(rx, HIGH);  // pullup for normal logic!
-  _receivePin = rx;
   _receiveBitMask = digitalPinToBitMask(rx);
   uint8_t port = digitalPinToPort(rx);
   _receivePortRegister = portInputRegister(port);
@@ -390,7 +391,8 @@ void NewSoftSerial::setRX(uint8_t rx)
 void NewSoftSerial::begin(long speed)
 {
   _rx_delay_centering = _rx_delay_intrabit = _rx_delay_stopbit = _tx_delay = 0;
-
+  setTX();
+  setRX();
   for (unsigned i=0; i<sizeof(table)/sizeof(table[0]); ++i)
   {
     long baud = pgm_read_dword(&table[i].baud);

@@ -48,6 +48,7 @@ private:
   uint8_t _receivePin;
   uint8_t _receiveBitMask;
   volatile uint8_t *_receivePortRegister;
+  uint8_t _transmitPin;
   uint8_t _transmitBitMask;
   volatile uint8_t *_transmitPortRegister;
 
@@ -71,8 +72,8 @@ private:
   virtual void write(uint8_t byte);
   uint8_t rx_pin_read();
   void tx_pin_write(uint8_t pin_state);
-  void setTX(uint8_t transmitPin);
-  void setRX(uint8_t receivePin);
+  void setTX(void);
+  void setRX(void);
 
   // private static method for timing
   static inline void tunedDelay(uint16_t delay);

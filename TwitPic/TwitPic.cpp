@@ -18,7 +18,7 @@
 #define HEADER							"--" BOUNDARY
 #define FOOTER							"--" BOUNDARY "--"
 
-#define SERIAL_DEBUG 1
+#define SERIAL_DEBUG 0
 #if SERIAL_DEBUG
 #include <HardwareSerial.h>
 #define DEBUG_PRINT(c)   Serial.print(c)
