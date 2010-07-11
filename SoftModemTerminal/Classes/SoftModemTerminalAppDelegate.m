@@ -11,7 +11,6 @@
 #import "AudioSignalAnalyzer.h"
 #import "FSKSerialGenerator.h"
 #import "FSKRecognizer.h"
-#import "AudioSessionController.h"
 
 @implementation SoftModemTerminalAppDelegate
 
@@ -35,8 +34,14 @@
 	[window addSubview:[mainViewController view]];
     [window makeKeyAndVisible];
 
-	[AudioSessionController sharedInstance].audioCategory = kAudioSessionCategory_PlayAndRecord;
-	[AudioSessionController sharedInstance].active = YES;
+	AVAudioSession *session = [AVAudioSession sharedInstance];
+	session.delegate = self;
+	if(session.inputIsAvailable){
+		[session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+	}else{
+		[session setCategory:AVAudioSessionCategoryPlayback error:nil];
+	}
+	[session setActive:YES error:nil];
 
 	recognizer = [[FSKRecognizer alloc] init];
 	[recognizer addReceiver:mainViewController];
@@ -46,11 +51,25 @@
 
 	analyzer = [[AudioSignalAnalyzer alloc] init];
 	[analyzer addRecognizer:recognizer];
-	[analyzer record];
+
+	if(session.inputIsAvailable){
+		[analyzer record];
+	}
 
 	return YES;
 }
 
+- (void)inputIsAvailableChanged:(BOOL)isInputAvailable
+{
+	NSLog(@"inputIsAvailableChanged %d",isInputAvailable);
+	if(isInputAvailable){
+		[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+		[analyzer record];
+	}else{
+		[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
+		[analyzer stop];
+	}
+}
 
 - (void)dealloc {
     [mainViewController release];

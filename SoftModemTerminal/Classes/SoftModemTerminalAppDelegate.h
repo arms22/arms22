@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVAudioSession.h>
 
 @class MainViewController;
 @class AudioSignalAnalyzer, FSKSerialGenerator, FSKRecognizer;
 
-@interface SoftModemTerminalAppDelegate : NSObject <UIApplicationDelegate> {
+@interface SoftModemTerminalAppDelegate : NSObject <UIApplicationDelegate, AVAudioSessionDelegate> {
 	AudioSignalAnalyzer* analyzer;
 	FSKSerialGenerator* generator;
 	FSKRecognizer* recognizer;
