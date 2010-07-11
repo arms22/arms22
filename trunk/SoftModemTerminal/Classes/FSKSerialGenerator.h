@@ -10,7 +10,6 @@
 
 
 @interface FSKSerialGenerator : AudioSignalGenerator {
-	//unsigned nsBitProgress;
 	float nsBitProgress;
 	unsigned sineTableIndex;
 
@@ -18,6 +17,7 @@
 	UInt16 bits;
 	
 	BOOL hasQueuedBytes;
+	BOOL sendCarrier;
 	
 	NSInputStream* bytesToSend;
 	NSOutputStream* queuedBytes;

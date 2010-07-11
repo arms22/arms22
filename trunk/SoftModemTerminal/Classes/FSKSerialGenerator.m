@@ -31,6 +31,7 @@
 #define BIT_PERIOD     (1000000000 / BAUD)
 
 #define SINE_TABLE_LENGTH 441
+#define CARRIER_BITS	  ((40000000)/BIT_PERIOD)
 
 // TABLE_JUMP = phase_per_sample / phase_per_entry
 // phase_per_sample = 2pi * time_per_sample / time_per_wave
@@ -77,7 +78,7 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 	audioFormat.mBytesPerPacket		= BYTES_PER_FRAME;
 	audioFormat.mBytesPerFrame		= BYTES_PER_FRAME;
 
-	bufferByteSize = 0x200;
+	bufferByteSize = 0x600;
 //	bufferByteSize = 0x4000;
 }
 
@@ -93,6 +94,7 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 		bitCount = 14;
 //		bits = ((UInt16)byte << 1) | (0xfe00);
 //		bitCount = 12;
+		sendCarrier = NO;
 		return YES;
 	}
 	else if(hasQueuedBytes)
@@ -112,9 +114,9 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 		[self.bytesToSend open];
 		[temp release];
 		
-		bits = 0xff;
-		bitCount = 8;
-		nsBitProgress = 0.0f;
+		bits = 0xffff;
+		bitCount = CARRIER_BITS;
+		sendCarrier = YES;
 		return YES;
 		//return [self getNextByte];
 	}
@@ -138,7 +140,8 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 			if(bitCount)
 			{
 				--bitCount;
-				bits >>= 1;
+				if(!sendCarrier)
+					bits >>= 1;
 			}
 			nsBitProgress -= BIT_PERIOD;
 			if(!bitCount)
@@ -149,7 +152,7 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 			*sample = 0;
 		}
 		else{
-			sineTableIndex += (bits & 1)?TABLE_JUMP_HIGH:TABLE_JUMP_LOW;		
+			sineTableIndex += (bits & 1)?TABLE_JUMP_HIGH:TABLE_JUMP_LOW;
 			if(sineTableIndex >= SINE_TABLE_LENGTH)
 				sineTableIndex -= SINE_TABLE_LENGTH;
 			*sample = sineTable[sineTableIndex];
