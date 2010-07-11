@@ -90,10 +90,8 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 		if([self.bytesToSend read:&byte maxLength:1] <= 0)
 			return NO;
 		//NSLog(@"Sending byte: %c (%02X)", (char)byte, (unsigned)byte);
-		bits = ((UInt16)byte << 1) | (0x3f << 9);
-		bitCount = 14;
-//		bits = ((UInt16)byte << 1) | (0xfe00);
-//		bitCount = 12;
+		bits = ((UInt16)byte << 1) | (0x7 << 9);
+		bitCount = 12;
 		sendCarrier = NO;
 		return YES;
 	}
