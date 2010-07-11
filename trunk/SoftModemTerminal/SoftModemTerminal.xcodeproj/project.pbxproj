@@ -17,6 +17,7 @@
 		288765590DF743DE002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765580DF743DE002DB57D /* CoreGraphics.framework */; };
 		289233AE0DB2D0DB0083E9F9 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 289233A90DB2D0DB0083E9F9 /* MainViewController.m */; };
 		289233B00DB2D0DB0083E9F9 /* FlipsideViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 289233AD0DB2D0DB0083E9F9 /* FlipsideViewController.m */; };
+		7000540711E5FD1200ED71EB /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7000540611E5FD1200ED71EB /* AVFoundation.framework */; };
 		702E1D02118D265F00141E6A /* AudioQueueObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CF5118D265F00141E6A /* AudioQueueObject.m */; };
 		702E1D03118D265F00141E6A /* AudioSignalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CF7118D265F00141E6A /* AudioSignalAnalyzer.m */; };
 		702E1D04118D265F00141E6A /* AudioSignalGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CF9118D265F00141E6A /* AudioSignalGenerator.m */; };
@@ -24,7 +25,6 @@
 		702E1D06118D265F00141E6A /* FSKSerialGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CFD118D265F00141E6A /* FSKSerialGenerator.m */; };
 		702E1D07118D265F00141E6A /* MultiDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1D00118D265F00141E6A /* MultiDelegate.m */; };
 		702E1D1D118D270B00141E6A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702E1D1C118D270B00141E6A /* AudioToolbox.framework */; };
-		70A7742F118FC832009C6871 /* AudioSessionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 70A7742E118FC832009C6871 /* AudioSessionController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +42,7 @@
 		289233AD0DB2D0DB0083E9F9 /* FlipsideViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FlipsideViewController.m; path = Classes/FlipsideViewController.m; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* SoftModemTerminal_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoftModemTerminal_Prefix.pch; sourceTree = "<group>"; };
+		7000540611E5FD1200ED71EB /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		702E1CF4118D265F00141E6A /* AudioQueueObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioQueueObject.h; path = Classes/AudioQueueObject.h; sourceTree = "<group>"; };
 		702E1CF5118D265F00141E6A /* AudioQueueObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioQueueObject.m; path = Classes/AudioQueueObject.m; sourceTree = "<group>"; };
 		702E1CF6118D265F00141E6A /* AudioSignalAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioSignalAnalyzer.h; path = Classes/AudioSignalAnalyzer.h; sourceTree = "<group>"; };
@@ -58,8 +59,6 @@
 		702E1D01118D265F00141E6A /* PatternRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PatternRecognizer.h; path = Classes/PatternRecognizer.h; sourceTree = "<group>"; };
 		702E1D1C118D270B00141E6A /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		702E1D58118D287600141E6A /* CharReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CharReceiver.h; path = Classes/CharReceiver.h; sourceTree = "<group>"; };
-		70A7742D118FC832009C6871 /* AudioSessionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioSessionController.h; path = Classes/AudioSessionController.h; sourceTree = "<group>"; };
-		70A7742E118FC832009C6871 /* AudioSessionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioSessionController.m; path = Classes/AudioSessionController.m; sourceTree = "<group>"; };
 		70BA824C11BA507600005CF1 /* SoftModemTerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoftModemTerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		70D1A3A71192DE50009B9356 /* FSKModemConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKModemConfig.h; path = Classes/FSKModemConfig.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SoftModemTerminal-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SoftModemTerminal-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
@@ -74,6 +73,7 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765590DF743DE002DB57D /* CoreGraphics.framework in Frameworks */,
 				702E1D1D118D270B00141E6A /* AudioToolbox.framework in Frameworks */,
+				7000540711E5FD1200ED71EB /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +158,7 @@
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765580DF743DE002DB57D /* CoreGraphics.framework */,
+				7000540611E5FD1200ED71EB /* AVFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -165,8 +166,6 @@
 		702E1CF3118D263A00141E6A /* Audio */ = {
 			isa = PBXGroup;
 			children = (
-				70A7742D118FC832009C6871 /* AudioSessionController.h */,
-				70A7742E118FC832009C6871 /* AudioSessionController.m */,
 				702E1D58118D287600141E6A /* CharReceiver.h */,
 				702E1CF4118D265F00141E6A /* AudioQueueObject.h */,
 				702E1CF5118D265F00141E6A /* AudioQueueObject.m */,
@@ -259,7 +258,6 @@
 				702E1D05118D265F00141E6A /* FSKRecognizer.mm in Sources */,
 				702E1D06118D265F00141E6A /* FSKSerialGenerator.m in Sources */,
 				702E1D07118D265F00141E6A /* MultiDelegate.m in Sources */,
-				70A7742F118FC832009C6871 /* AudioSessionController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,7 +300,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.1.3;
+				SDKROOT = iphonesimulator3.2;
 			};
 			name = Debug;
 		};
@@ -316,7 +314,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
-				SDKROOT = iphoneos3.1.3;
+				SDKROOT = iphonesimulator3.2;
 			};
 			name = Release;
 		};
