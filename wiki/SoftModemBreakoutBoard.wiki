@@ -1,0 +1,48 @@
+#labels SoftModem,iPhone,Arduino
+= SoftModemインターフェースボード =
+
+<a href="http://www.flickr.com/photos/arms22/4815366064/" title="IMGP7837 by arms22, on Flickr"><img src="http://farm5.static.flickr.com/4098/4815366064_e281a283b4.jpg" width="500" height="333" alt="IMGP7837" /></a>
+
+iPhoneのオーディオ端子を使ってArduinoと通信するためのインターフェースボードです。
+
+iPhoneからArduinoへ、ArduinoからiPhoneへデータを送ることができます。通信速度は1225bpsです（※実際のデータ転送レートはもう少し低いです）。センサー情報やスイッチ入力など少量のデータ通信に向いています。
+
+半完成品です。ピンヘッダもしくはピンソケットをハンダづけして使います。
+
+== 接続 ==
+
+iPhoneとの接続には4極オスオスケーブルを使います。ケーブルによってはクロストークが発生し、通信エラーの原因になります。シールドされた金メッキ端子のケーブルを使って下さい。ケーブル長は短いほどよいです。
+
+Arduinoとは次のように接続します（右側がArduinoの端子）。
+ * FSKOUT→D3
+ * GND→GND
+ * VCC→VCC
+ * FSKIN→D6
+ * AIN1→D7
+
+== Arduinoライブラリ ==
+
+次のURLからライブラリをダウンロードしてください。
+
+SoftModemライブラリ
+
+http://code.google.com/p/arms22/downloads/detail?name=SoftModem-002.zip
+
+== iPhoneソースコード ==
+
+次のURLからソースコードをダウンロードしてください。
+
+SoftModemTerminal.app
+
+[http://code.google.com/p/arms22/downloads/detail?name=SoftModemTerminal-003.zip]
+
+== 制限 ==
+
+ * オーディオ端子を使った通信のため、時々データが壊れることがあります。チェックサムやリトライなど組み込むことを検討してください。
+ * iPhoneの音量は最大にして使って下さい。
+
+
+
+----
+
+[http://arms22.blog91.fc2.com/?tag=SoftModem なんでも作っちゃ、かも。]
