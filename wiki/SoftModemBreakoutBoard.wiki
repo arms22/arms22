@@ -1,6 +1,6 @@
+#summary SoftModemインターフェースボード
 #labels SoftModem,iPhone,Arduino
 = SoftModemインターフェースボード =
-
 <a href="http://www.flickr.com/photos/arms22/4815366064/" title="IMGP7837 by arms22, on Flickr"><img src="http://farm5.static.flickr.com/4098/4815366064_e281a283b4.jpg" width="500" height="333" alt="IMGP7837" /></a>
 
 iPhoneのオーディオ端子を使ってArduinoと通信するためのインターフェースボードです。
@@ -13,7 +13,7 @@ iPhoneからArduinoへ、ArduinoからiPhoneへデータを送ることができ
 
 
 == 接続 ==
-iPhoneとの接続には4極オスオスケーブルを使います。ケーブルによってはクロストークが発生し、通信エラーの原因になります。シールドされた金メッキ端子のケーブルを使って下さい。ケーブル長は短いほどよいです。
+iPhoneとの接続には4極オスオスケーブルをお使いください。ケーブルによってはクロストークが発生し、通信エラーの原因になります。金メッキ端子のシールドされたケーブルをお使いください。ケーブルの長さは短ければ短いほどよいです。
 
 Arduinoとは次のように接続します（右側がArduinoの端子）。
  * FSKOUT→D3
@@ -21,6 +21,12 @@ Arduinoとは次のように接続します（右側がArduinoの端子）。
  * VCC→VCC
  * FSKIN→D6
  * AIN1→D7
+
+*ボリューム調整*
+
+Arduinoの電源電圧に合わせて調整します。AIN1の電圧をテスターで計り、(VCC / 2) + 300mVになるよう調節します。
+||5V||2.7V||
+||3.3V||1.95V||
 
 == Arduinoライブラリ ==
 
@@ -142,13 +148,17 @@ MainViewController *mainViewController;
 
 == 制限 ==
 
- * オーディオ端子を使った通信のため、時々データが壊れることがあります。チェックサムやリトライなど組み込むことを検討してください。
+ * オーディオ端子を使った通信のため、時々データが壊れることがあります。チェックサムやリトライ処理など組み込むことを検討してください。
  * iPhoneの音量は最大にして使って下さい。
 
 
 == ドキュメント: ==
  * [http://www.flickr.com/photos/arms22/4821347734 回路図]
  * [http://code.google.com/p/arms22/downloads/detail?name=iPhoneSoftModem%20BreakOut_EAGLE_v1.zip Eagle Files]
+
+----
+
+||<div class="amazlet-box"><div class="amazlet-image"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/B0025Y6C5G/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://ecx.images-amazon.com/images/I/51MqUP-lVzL._SL160_.jpg" alt="Arduinoをはじめようキット" /></a></div><div class="amazlet-info"><div class="amazlet-name"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/B0025Y6C5G/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank">Arduinoをはじめようキット</a><div class="amazlet-powered-date">posted with <a href="http://www.amazlet.com/browse/ASIN/B0025Y6C5G/nandemotukuty-22/ref=nosim/" title="Arduinoをはじめようキット" target="_blank">amazlet</a> at 10.07.24</div></div><div class="amazlet-detail">スイッチサイエンス <br />売り上げランキング: 945<br /></div><div class="amazlet-sub-info"><div class="amazlet-link"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/B0025Y6C5G/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div></div><div class="amazlet-footer"></div></div>||<div class="amazlet-box"><div class="amazlet-image"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873114535/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://ecx.images-amazon.com/images/I/51Tg0mv%2B5QL._SL160_.jpg" alt="Prototyping Lab ―「作りながら考える」ためのArduino実践レシピ" /></a></div><div class="amazlet-info"><div class="amazlet-name"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873114535/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank">Prototyping Lab ―「作りながら考える」ためのArduino実践レシピ</a><div class="amazlet-powered-date">posted with <a href="http://www.amazlet.com/browse/ASIN/4873114535/nandemotukuty-22/ref=nosim/" title="Prototyping Lab ―「作りながら考える」ためのArduino実践レシピ" target="_blank">amazlet</a> at 10.07.24</div></div><div class="amazlet-detail">小林 茂 <br />オライリージャパン <br />売り上げランキング: 4572<br /></div><div class="amazlet-sub-info"><div class="amazlet-link"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4873114535/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div></div><div class="amazlet-footer"></div></div>||<div class="amazlet-box"><div class="amazlet-image"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4797355158/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank"><img src="http://ecx.images-amazon.com/images/I/51Ynw2O9ONL._SL160_.jpg" alt="iPhone Core Audioプログラミング" /></a></div><div class="amazlet-info"><div class="amazlet-name"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4797355158/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank">iPhone Core Audioプログラミング</a><div class="amazlet-powered-date">posted with <a href="http://www.amazlet.com/browse/ASIN/4797355158/nandemotukuty-22/ref=nosim/" title="iPhone Core Audioプログラミング" target="_blank">amazlet</a> at 10.07.24</div></div><div class="amazlet-detail">永野 哲久 <br />ソフトバンククリエイティブ <br />売り上げランキング: 14085<br /></div><div class="amazlet-sub-info"><div class="amazlet-link"><a href="http://www.amazon.co.jp/exec/obidos/ASIN/4797355158/nandemotukuty-22/ref=nosim/" name="amazletlink" target="_blank">Amazon.co.jp で詳細を見る</a></div></div></div><div class="amazlet-footer"></div></div>||
 
 ----
 Copyright © [http://arms22.blog91.fc2.com/?tag=SoftModem なんでも作っちゃう、かも。] All Rights Reserved.
