@@ -9,8 +9,10 @@ iPhoneからArduinoへ、ArduinoからiPhoneへデータを送ることができ
 
 半完成品です。ピンヘッダもしくはピンソケットをハンダづけして使います。
 
-== 接続 ==
+寸法：25 x 25mm
 
+
+== 接続 ==
 iPhoneとの接続には4極オスオスケーブルを使います。ケーブルによってはクロストークが発生し、通信エラーの原因になります。シールドされた金メッキ端子のケーブルを使って下さい。ケーブル長は短いほどよいです。
 
 Arduinoとは次のように接続します（右側がArduinoの端子）。
@@ -22,19 +24,121 @@ Arduinoとは次のように接続します（右側がArduinoの端子）。
 
 == Arduinoライブラリ ==
 
-次のURLからライブラリをダウンロードしてください。
+[http://code.google.com/p/arms22/downloads/detail?name=SoftModem-002.zip SoftModem-002.zip]
 
-SoftModemライブラリ
+*サンプルスケッチ*
+{{{
+#include <SoftModem.h>
+#include <ctype.h>
 
-http://code.google.com/p/arms22/downloads/detail?name=SoftModem-002.zip
+SoftModem modem;
+
+void setup()
+{
+  Serial.begin(57600);
+  delay(1000);
+  modem.begin();
+}
+
+void loop()
+{
+  while(modem.available()){
+    int c = modem.read();
+    if(isprint(c)){
+      Serial.println((char)c);
+    }
+    else{
+      Serial.print("(");
+      Serial.print(c,HEX);
+      Serial.println(")");      
+    }
+  }
+  if(Serial.available()){
+    modem.write(0xff);
+    while(Serial.available()){
+      char c = Serial.read();
+      modem.write(c);
+      Serial.print(c);
+    }
+    Serial.println();
+  }
+}
+}}}
 
 == iPhoneソースコード ==
 
-次のURLからソースコードをダウンロードしてください。
+[http://code.google.com/p/arms22/downloads/detail?name=SoftModemTerminal-003.zip SoftModemTerminal-003.zip]
 
-SoftModemTerminal.app
+現在、iPhoneのソースコードはフレームワーク化されておらず、SoftModemTerminalからSoftModemに関連するソースコードをコピーして使う必要があります。次のリストはSoftModemに関連するソースコードの一覧です。これらのソースコードをプロジェクトフォルダにコピーしてください。
+ * AudioQueueObject.h
+ * AudioQueueObject.m
+ * AudioSignalAnalyzer.h
+ * AudioSignalAnalyzer.m
+ * AudioSignalGenerator.h
+ * AudioSignalGenerator.m
+ * CharReceiver.h
+ * FSKModemConfig.h
+ * FSKByteQueue.h
+ * FSKRecognizer.h
+ * FSKRecognizer.mm
+ * FSKSerialGenerator.h
+ * FSKSerialGenerator.m
+ * lockfree.h
+ * MultiDelegate.h
+ * MultiDelegate.m
+ * PatternRecognizer.h
 
-[http://code.google.com/p/arms22/downloads/detail?name=SoftModemTerminal-003.zip]
+SoftModemは音声の入出力に次の2つのフレームワークを使います。これらフレームワームをプロジェクトに追加してください。
+ * AudioToolbox.framework
+ * AVFoundation.framework
+
+*初期化*
+
+まず最初にAVAudioSessionクラス使って、アプリケーションのカテゴリを設定します。音声の録音と再生を行うので AVAudioSessionCategoryPlayAndRecord を設定します。
+{{{
+AVAudioSession *session = [AVAudioSession sharedInstance];
+session.delegate = self;
+[session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+[session setActive:YES error:nil];
+}}}
+次に音声解析用のAudioSignalAnalyzerクラス、FSKRecognizerクラスのインスタンスを生成します。AudioSignalAnalyzer はマイクから入力された波形を解析し、波形の上がり立ち下がりエッジを検出します。FSKRecognizer は AudioSignalAnalyzer が解析した結果を元にデータビットを復元します。
+{{{
+recognizer = [[FSKRecognizer alloc] init];
+analyzer = [[AudioSignalAnalyzer alloc] init];
+[analyzer addRecognizer:recognizer]; //analyzerにrecognizerを登録
+[analyzer record]; //音声解析開始
+}}}
+次に音声出力用の FSKSerialGeneratorクラスのインスタンスを生成します。FSKSerialGenerator はデータビットを音声信号に変換し、出力します。
+{{{
+generator = [[FSKSerialGenerator alloc] init];
+[generator play]; // 音声出力開始
+}}}
+
+*受信* 
+
+データの受信は CharReceiver プロトコルを実装したクラスを FSKRecognizer クラスに登録することで行います。
+{{{
+@interface MainViewController : UIViewController <CharReceiver>
+}}}
+初期化のタイミングで FSKRecognizer クラスに登録します。
+{{{
+MainViewController *mainViewController;
+[recognizer addReceiver:mainViewController];
+}}}
+データを1バイト受信すると receivedChar: メソッドが呼ばれます。
+{{{
+- (void) receivedChar:(char)input
+{
+    //受信処理
+}
+}}}
+
+*送信*
+
+送信は受信に比べてずっと簡単で、FSKSerialGenerator クラスの writeByte: メソッドで1バイト送信します。
+{{{
+[generator writeByte:0xff];
+}}}
 
 == 制限 ==
 
@@ -42,7 +146,9 @@ SoftModemTerminal.app
  * iPhoneの音量は最大にして使って下さい。
 
 
+== ドキュメント: ==
+ * [http://www.flickr.com/photos/arms22/4821347734 回路図]
+ * [http://code.google.com/p/arms22/downloads/detail?name=iPhoneSoftModem%20BreakOut_EAGLE_v1.zip Eagle Files]
 
 ----
-
-[http://arms22.blog91.fc2.com/?tag=SoftModem なんでも作っちゃ、かも。]
+Copyright © [http://arms22.blog91.fc2.com/?tag=SoftModem なんでも作っちゃう、かも。] All Rights Reserved.
