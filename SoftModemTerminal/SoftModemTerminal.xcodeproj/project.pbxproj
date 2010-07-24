@@ -22,9 +22,9 @@
 		702E1D03118D265F00141E6A /* AudioSignalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CF7118D265F00141E6A /* AudioSignalAnalyzer.m */; };
 		702E1D04118D265F00141E6A /* AudioSignalGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CF9118D265F00141E6A /* AudioSignalGenerator.m */; };
 		702E1D05118D265F00141E6A /* FSKRecognizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CFB118D265F00141E6A /* FSKRecognizer.mm */; };
-		702E1D06118D265F00141E6A /* FSKSerialGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CFD118D265F00141E6A /* FSKSerialGenerator.m */; };
 		702E1D07118D265F00141E6A /* MultiDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1D00118D265F00141E6A /* MultiDelegate.m */; };
 		702E1D1D118D270B00141E6A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702E1D1C118D270B00141E6A /* AudioToolbox.framework */; };
+		7061347B11F870BA00E36A4D /* FSKSerialGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7061347A11F870BA00E36A4D /* FSKSerialGenerator.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,13 +52,14 @@
 		702E1CFA118D265F00141E6A /* FSKRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKRecognizer.h; path = Classes/FSKRecognizer.h; sourceTree = "<group>"; };
 		702E1CFB118D265F00141E6A /* FSKRecognizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSKRecognizer.mm; path = Classes/FSKRecognizer.mm; sourceTree = "<group>"; };
 		702E1CFC118D265F00141E6A /* FSKSerialGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKSerialGenerator.h; path = Classes/FSKSerialGenerator.h; sourceTree = "<group>"; };
-		702E1CFD118D265F00141E6A /* FSKSerialGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSKSerialGenerator.m; path = Classes/FSKSerialGenerator.m; sourceTree = "<group>"; };
 		702E1CFE118D265F00141E6A /* lockfree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lockfree.h; path = Classes/lockfree.h; sourceTree = "<group>"; };
 		702E1CFF118D265F00141E6A /* MultiDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MultiDelegate.h; path = Classes/MultiDelegate.h; sourceTree = "<group>"; };
 		702E1D00118D265F00141E6A /* MultiDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MultiDelegate.m; path = Classes/MultiDelegate.m; sourceTree = "<group>"; };
 		702E1D01118D265F00141E6A /* PatternRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PatternRecognizer.h; path = Classes/PatternRecognizer.h; sourceTree = "<group>"; };
 		702E1D1C118D270B00141E6A /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		702E1D58118D287600141E6A /* CharReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CharReceiver.h; path = Classes/CharReceiver.h; sourceTree = "<group>"; };
+		7061347A11F870BA00E36A4D /* FSKSerialGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSKSerialGenerator.mm; path = Classes/FSKSerialGenerator.mm; sourceTree = "<group>"; };
+		7061347C11F870DA00E36A4D /* FSKByteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKByteQueue.h; path = Classes/FSKByteQueue.h; sourceTree = "<group>"; };
 		70BA824C11BA507600005CF1 /* SoftModemTerminal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SoftModemTerminal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		70D1A3A71192DE50009B9356 /* FSKModemConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKModemConfig.h; path = Classes/FSKModemConfig.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* SoftModemTerminal-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "SoftModemTerminal-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
@@ -154,11 +155,11 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7000540611E5FD1200ED71EB /* AVFoundation.framework */,
 				702E1D1C118D270B00141E6A /* AudioToolbox.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765580DF743DE002DB57D /* CoreGraphics.framework */,
-				7000540611E5FD1200ED71EB /* AVFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -174,10 +175,11 @@
 				702E1CF8118D265F00141E6A /* AudioSignalGenerator.h */,
 				702E1CF9118D265F00141E6A /* AudioSignalGenerator.m */,
 				70D1A3A71192DE50009B9356 /* FSKModemConfig.h */,
+				7061347C11F870DA00E36A4D /* FSKByteQueue.h */,
 				702E1CFA118D265F00141E6A /* FSKRecognizer.h */,
 				702E1CFB118D265F00141E6A /* FSKRecognizer.mm */,
 				702E1CFC118D265F00141E6A /* FSKSerialGenerator.h */,
-				702E1CFD118D265F00141E6A /* FSKSerialGenerator.m */,
+				7061347A11F870BA00E36A4D /* FSKSerialGenerator.mm */,
 				702E1CFE118D265F00141E6A /* lockfree.h */,
 				702E1CFF118D265F00141E6A /* MultiDelegate.h */,
 				702E1D00118D265F00141E6A /* MultiDelegate.m */,
@@ -256,8 +258,8 @@
 				702E1D03118D265F00141E6A /* AudioSignalAnalyzer.m in Sources */,
 				702E1D04118D265F00141E6A /* AudioSignalGenerator.m in Sources */,
 				702E1D05118D265F00141E6A /* FSKRecognizer.mm in Sources */,
-				702E1D06118D265F00141E6A /* FSKSerialGenerator.m in Sources */,
 				702E1D07118D265F00141E6A /* MultiDelegate.m in Sources */,
+				7061347B11F870BA00E36A4D /* FSKSerialGenerator.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

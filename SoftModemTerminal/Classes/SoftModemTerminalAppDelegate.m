@@ -62,13 +62,35 @@
 - (void)inputIsAvailableChanged:(BOOL)isInputAvailable
 {
 	NSLog(@"inputIsAvailableChanged %d",isInputAvailable);
+	
+	AVAudioSession *session = [AVAudioSession sharedInstance];
 	if(isInputAvailable){
-		[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
+		[session setCategory:AVAudioSessionCategoryPlayAndRecord	error:nil];
 		[analyzer record];
 	}else{
-		[[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:nil];
 		[analyzer stop];
+		[session setCategory:AVAudioSessionCategoryPlayback error:nil];
 	}
+}
+
+- (void)beginInterruption
+{
+	NSLog(@"beginInterruption");
+	
+	[analyzer stop];
+	[generator stop];
+}
+
+- (void)endInterruptionWithFlags:(NSUInteger)flags
+{
+	NSLog(@"endInterruptionWithFlags: %x",flags);
+	
+	AVAudioSession *session = [AVAudioSession sharedInstance];
+	[session setActive:YES error:nil];
+	if(session.inputIsAvailable){
+		[analyzer record];		
+	}
+	[generator play];
 }
 
 - (void)dealloc {
