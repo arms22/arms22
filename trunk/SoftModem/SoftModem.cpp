@@ -60,6 +60,8 @@ SoftModem::~SoftModem() {
 #define SOFT_MODEM_HIGH_ADJ        (SOFT_MODEM_BIT_PERIOD%SOFT_MODEM_HIGH_USEC)
 #define SOFT_MODEM_LOW_ADJ         (SOFT_MODEM_BIT_PERIOD%SOFT_MODEM_LOW_USEC)
 
+#define SOFT_MODEM_CARRIR_CNT      (20000000/SOFT_MODEM_BIT_PERIOD)
+
 #define TCNT_BIT_PERIOD            (SOFT_MODEM_BIT_PERIOD/MICROS_PER_TIMER_COUNT)
 #define TCNT_HIGH_FREQ             (SOFT_MODEM_HIGH_USEC/MICROS_PER_TIMER_COUNT)
 #define TCNT_LOW_FREQ              (SOFT_MODEM_LOW_USEC/MICROS_PER_TIMER_COUNT)
@@ -93,10 +95,6 @@ void SoftModem::begin(void)
 	portLEDMask = digitalPinToBitMask(13);
 	_errs = 0;
 	_ints = 0;
-	highRate = lowRate = TCNT_BIT_PERIOD;
-#endif
-#if SOFT_MODEM_HISTORY_ENA
-	_hisHead = _hisTail = 0;
 #endif
 
 	_recvStat = 0xff;
@@ -129,7 +127,6 @@ enum {
 	FSK_D5_BIT,
 	FSK_D6_BIT,
 	FSK_D7_BIT,  
-	FSK_PARITY_BIT,
 	FSK_STOP_BIT
 };
 
@@ -162,7 +159,7 @@ void SoftModem::demodulate(void)
 	
 	if(_lastDiff >= (uint8_t)(TCNT_LOW_TH_L)){
 		_lowCount += _lastDiff;
-		if((_recvStat == 0xff) && (_lowCount >= (uint8_t)(TCNT_BIT_PERIOD * 0.7))){ // maybe Start-Bit
+		if((_recvStat == 0xff) && (_lowCount >= (uint8_t)(TCNT_BIT_PERIOD * 0.5))){ // maybe Start-Bit
 			_recvStat  = FSK_START_BIT;
 			_highCount = 0;
 			_recvBits  = 0;
@@ -170,31 +167,18 @@ void SoftModem::demodulate(void)
 			TIFR2     |= _BV(OCF2A);
 			TIMSK2    |= _BV(OCIE2A);
 		}
-#if SOFT_MODEM_DEBUG
-		uint8_t new_rate = diff * (uint8_t)SOFT_MODEM_LOW_CNT;
-		lowRate = (lowRate >> 1) + (lowRate >> 2) + (new_rate >> 2);
-#endif
 	}
 	else if(_lastDiff <= (uint8_t)(TCNT_HIGH_TH_H)){
 		_highCount += _lastDiff;
 		if((_recvStat == 0xff) && (_highCount >= (uint8_t)(TCNT_BIT_PERIOD))){
 			_lowCount = _highCount = 0;
 		}
-#if SOFT_MODEM_DEBUG
-		uint8_t new_rate = diff * (uint8_t)SOFT_MODEM_HIGH_CNT;
-		highRate = (highRate >> 1) + (highRate >> 2) + (new_rate >> 2);
-#endif
 	}
 	else{
 #if SOFT_MODEM_DEBUG
 		_errs++;
 #endif
 	}
-#if SOFT_MODEM_HISTORY_ENA
-	if(_recvStat != 0xff){
-		hisWrite(diff);
-	}
-#endif
 }
 
 ISR(ANALOG_COMP_vect)
@@ -220,9 +204,7 @@ void SoftModem::recv(void)
 			_lowCount = 0;
 		high = 0x00;
 	}
-#if SOFT_MODEM_HISTORY_ENA
-	hisWrite(high ? 1 : 0);
-#endif
+	
 	if(_recvStat == FSK_START_BIT){	// Start bit
 		if(!high){
 			_recvStat++;
@@ -235,18 +217,12 @@ void SoftModem::recv(void)
 		_recvBits |= high;
 		_recvStat++;
 	}
-	else if(_recvStat == FSK_PARITY_BIT){ // Parity bit
-		_recvStat++;
-	}
 	else if(_recvStat == FSK_STOP_BIT){	// Stop bit
 		uint8_t new_tail = (_recvBufferTail + 1) & (SOFT_MODEM_MAX_RX_BUFF - 1);
 		if(new_tail != _recvBufferHead){
 			_recvBuffer[_recvBufferTail] = _recvBits;
 			_recvBufferTail = new_tail;
 		}
-#if SOFT_MODEM_HISTORY_ENA
-		hisWrite(_recvBits);
-#endif
 		goto end_recv;
 	}
 	else{
@@ -319,68 +295,23 @@ void SoftModem::write(uint8_t data)
 {
 	static unsigned long lastTransmissionTime = 0;
 	if((micros() - lastTransmissionTime) > (uint16_t)(SOFT_MODEM_LOW_USEC*2)){
-		modulate(HIGH);			// Brief carrier tones
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-#if SOFT_MODEM_BAUD_RATE >= 600
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-#endif
-#if SOFT_MODEM_BAUD_RATE >= 1200
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-		modulate(HIGH);
-#endif
+		for(uint8_t i = 0; i<(uint8_t)SOFT_MODEM_CARRIR_CNT; i++){
+			modulate(HIGH);
+		}
 	}
-	uint8_t parity = 0;
 	modulate(LOW);							 // Start Bit
 	for(uint8_t mask = 1; mask; mask <<= 1){ // Data Bits
 		if(data & mask){
-			parity++;
 			modulate(HIGH);
 		}
 		else{
 			modulate(LOW);
 		}
 	}
-	modulate(parity & 1);		// Parity Bit
 	modulate(HIGH);				// Stop Bit
 	modulate(HIGH);				// Push Bit
- 	lastTransmissionTime = micros();
+	lastTransmissionTime = micros();
 }
-
-#if SOFT_MODEM_HISTORY_ENA
-uint8_t SoftModem::hisAvailable(void)
-{
-	return (_hisTail + HIS_MAX - _hisHead) % HIS_MAX;
-}
-
-int SoftModem::hisRead(void)
-{
-	if(_hisHead == _hisTail)
-		return -1;
-	int d = _his[_hisHead];
-	_hisHead = (_hisHead + 1) % HIS_MAX;
-	return d;	
-}
-
-void SoftModem::hisWrite(uint8_t data)
-{
-	uint8_t new_tail = (_hisTail + 1) % HIS_MAX;
-	if(new_tail != _hisHead){
-		_his[_hisTail] = data;
-		_hisTail = new_tail;
-	}
-}
-#endif
 
 #if SOFT_MODEM_DEBUG
 #include <HardwareSerial.h>

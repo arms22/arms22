@@ -42,12 +42,10 @@
 //  Brief carrier tone before each transmission
 //  1 start bit (LOW)
 //  8 data bits, LSB first
-//  1 even parity bit
 //  1 stop bit (HIGH)
 //  1 push bit (HIGH)
 
 #define SOFT_MODEM_DEBUG       (0)
-#define SOFT_MODEM_HISTORY_ENA (0)
 
 class SoftModem : public Print
 {
@@ -82,17 +80,6 @@ public:
 	uint16_t _ints;
 	uint8_t errs;
 	uint16_t ints;
-	uint8_t highRate;
-	uint8_t lowRate;
-#endif
-#if SOFT_MODEM_HISTORY_ENA
-	uint8_t hisAvailable(void);
-	int hisRead(void);
-	void hisWrite(uint8_t data);
-#define HIS_MAX 254
-	uint8_t _his[HIS_MAX];
-	uint8_t _hisHead;
-	uint8_t _hisTail;
 #endif
 };
 
