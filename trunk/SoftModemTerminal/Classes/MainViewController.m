@@ -50,7 +50,8 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {	
 	[[SoftModemTerminalAppDelegate getInstance].generator writeByte:0xff];
-	[[SoftModemTerminalAppDelegate getInstance].generator print:textField.text];
+	[[SoftModemTerminalAppDelegate getInstance].generator writeBytes:[textField.text UTF8String]
+															  length:[textField.text lengthOfBytesUsingEncoding:NSUTF8StringEncoding]];
 	textField.text = @"";
 	return YES;
 }

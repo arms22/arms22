@@ -8,6 +8,7 @@
 
 #import "FSKModemConfig.h"
 #import "FSKSerialGenerator.h"
+#import "FSKByteQueue.h"
 
 #define SAMPLE_RATE  44100
 #define SAMPLE       SInt16
@@ -31,7 +32,9 @@
 #define BIT_PERIOD     (1000000000 / BAUD)
 
 #define SINE_TABLE_LENGTH 441
-#define CARRIER_BITS	  ((40000000)/BIT_PERIOD)
+
+#define PRE_CARRIER_BITS	  ((40000000+BIT_PERIOD)/BIT_PERIOD)
+#define POST_CARRIER_BITS	  (( 5000000+BIT_PERIOD)/BIT_PERIOD)
 
 // TABLE_JUMP = phase_per_sample / phase_per_entry
 // phase_per_sample = 2pi * time_per_sample / time_per_wave
@@ -47,17 +50,12 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 
 @implementation FSKSerialGenerator
 
-@synthesize bytesToSend;
-@synthesize queuedBytes;
-
 - (id) init
 {
 	if (self = [super init])
 	{
-		self.bytesToSend = nil;
-		self.queuedBytes = [NSOutputStream outputStreamToMemory];
-		[self.queuedBytes open];
-		
+		byteQueue = new FSKByteQueue();
+		byteUnderflow = YES;
 		for(int i=0; i<SINE_TABLE_LENGTH; ++i)
 		{
 			sineTable[i] = (SAMPLE)(sin(i * 2 * 3.14159 / SINE_TABLE_LENGTH) * SAMPLE_MAX);
@@ -77,48 +75,42 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 	audioFormat.mBitsPerChannel		= BITS_PER_CHANNEL;
 	audioFormat.mBytesPerPacket		= BYTES_PER_FRAME;
 	audioFormat.mBytesPerFrame		= BYTES_PER_FRAME;
-
-	bufferByteSize = 0x600;
-//	bufferByteSize = 0x4000;
+	
+	bufferByteSize = 0x400;
 }
 
 - (BOOL) getNextByte
 {
-	UInt8 byte;
-	if(self.bytesToSend && [self.bytesToSend hasBytesAvailable])
+	char byte;
+	if(byteUnderflow)
 	{
-		if([self.bytesToSend read:&byte maxLength:1] <= 0)
-			return NO;
-		//NSLog(@"Sending byte: %c (%02X)", (char)byte, (unsigned)byte);
-		bits = ((UInt16)byte << 1) | (0x7 << 9);
-		bitCount = 12;
-		sendCarrier = NO;
-		return YES;
-	}
-	else if(hasQueuedBytes)
-	{
-		NSOutputStream* temp;
-		@synchronized(self)
+		if(!byteQueue->empty())
 		{
-			temp = self.queuedBytes;
-			[temp retain];
-			self.queuedBytes = [NSOutputStream outputStreamToMemory];
-			[self.queuedBytes open];
-			hasQueuedBytes = NO;
+			bits = 1;
+			bitCount = PRE_CARRIER_BITS;
+			sendCarrier = YES;
+			byteUnderflow = NO;
+			return YES;
 		}
-		NSData *data = [temp propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
-		//NSLog(@"Bytes to send: %@", [[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease]);
-		self.bytesToSend = [NSInputStream inputStreamWithData:data];
-		[self.bytesToSend open];
-		[temp release];
-		
-		bits = 0xffff;
-		bitCount = CARRIER_BITS;
-		sendCarrier = YES;
-		return YES;
-		//return [self getNextByte];
 	}
-	
+	else
+	{
+		if(byteQueue->get(byte))
+		{
+			bits = ((UInt16)byte << 1) | (0x0200);
+			bitCount = 10;
+			sendCarrier = NO;
+			return YES;
+		}
+		else
+		{
+			bits = 1;
+			bitCount = POST_CARRIER_BITS;
+			sendCarrier = YES;
+			byteUnderflow = YES;
+			return YES;
+		}
+	}
 	bits = 1;	// Make sure the output is HIGH when there is no data
 	return NO;
 }
@@ -159,26 +151,26 @@ SAMPLE sineTable[SINE_TABLE_LENGTH];
 		if(bitCount)
 			nsBitProgress += SAMPLE_DURATION;
 	}
-	
 }
 
 - (void) writeByte:(UInt8)byte
 {
-	@synchronized(self)
-	{
-		[self.queuedBytes write:&byte maxLength:1];
-		hasQueuedBytes = YES;
+	byteQueue->put((char)byte);
+}
+
+- (void) writeBytes:(const UInt8 *)bytes length:(int)length
+{
+	for(int i = 0; i<length; i++){
+		byteQueue->put((char)*bytes++);
 	}
 }
 
-- (void) print:(NSString*)string
+- (void) dealloc
 {
-	const char *bytes = [string UTF8String];
-	@synchronized(self)
-	{
-		[self.queuedBytes write:(const uint8_t *)bytes maxLength:(NSUInteger)strlen(bytes)];
-		hasQueuedBytes = YES;
-	}	
+	if(byteQueue)
+		delete byteQueue;
+	
+	[super dealloc];
 }
 
 @end

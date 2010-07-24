@@ -9,9 +9,9 @@
 
 #import "FSKModemConfig.h"
 #import "FSKRecognizer.h"
+#import "FSKByteQueue.h"
 #import "MultiDelegate.h"
 #import "CharReceiver.h"
-#import "lockfree.h"
 
 #define WL_HIGH (1000000000 / FREQ_HIGH)
 #define WL_LOW  (1000000000 / FREQ_LOW)
@@ -25,12 +25,6 @@
 #define BIT_PERIOD     (1000000000 / BAUD)
 #define HALF_BIT_PERIOD (500000000 / BAUD)
 
-
-struct FSKByteQueue: public lock_free::queue<char> {
-	FSKByteQueue(): lock_free::queue<char>(20){};
-};
-
-
 @implementation FSKRecognizer
 
 - (id) init
@@ -38,8 +32,8 @@ struct FSKByteQueue: public lock_free::queue<char> {
 	if(self = [super init])
 	{
 		receivers = [[MultiDelegate alloc] init];
-		[self reset];
 		byteQueue = new FSKByteQueue();
+		[self reset];
 	}
 	
 	return self;
@@ -88,11 +82,7 @@ struct FSKByteQueue: public lock_free::queue<char> {
 				newState = FSKBits;
 				[self dataBit:high];
 			}
-			else if(bitPosition == 8){ // Parity Bit
-				newState = FSKBits;
-				bitPosition++;
-			}
-			else if(bitPosition == 9){ // Stop Bit
+			else if(bitPosition == 8){ // Stop Bit
 				newState = FSKStart;
 				byteQueue->put(bits);
 				[self performSelectorOnMainThread:@selector(commitBytes)
@@ -203,7 +193,7 @@ struct FSKByteQueue: public lock_free::queue<char> {
 	if(nsInterval <= HWL_LOW + HWL_HIGH)
 		[self halfWave:(unsigned)nsInterval];
 	else {
-		NSLog(@"skip");
+//		NSLog(@"skip");
 	}
 
 }

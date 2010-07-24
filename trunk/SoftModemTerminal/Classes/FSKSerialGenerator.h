@@ -8,25 +8,22 @@
 
 #import "AudioSignalGenerator.h"
 
+struct FSKByteQueue;
 
 @interface FSKSerialGenerator : AudioSignalGenerator {
 	float nsBitProgress;
 	unsigned sineTableIndex;
-
+	
 	unsigned bitCount;
 	UInt16 bits;
 	
-	BOOL hasQueuedBytes;
+	BOOL byteUnderflow;
 	BOOL sendCarrier;
 	
-	NSInputStream* bytesToSend;
-	NSOutputStream* queuedBytes;
+	struct FSKByteQueue* byteQueue;
 }
 
-@property (nonatomic, retain) NSInputStream* bytesToSend;
-@property (nonatomic, retain) NSOutputStream* queuedBytes;
-
 - (void) writeByte:(UInt8)byte;
-- (void) print:(NSString*)string;
+- (void) writeBytes:(const UInt8 *)bytes length:(int)length;
 
 @end

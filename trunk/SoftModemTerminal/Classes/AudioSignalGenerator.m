@@ -74,8 +74,8 @@ static void playbackCallback (
 						 &audioFormat,
 						 playbackCallback,
 						 self, 
-						 CFRunLoopGetCurrent (),
-						 kCFRunLoopCommonModes,
+						 nil,
+						 nil,
 						 0,								// run loop flags
 						 &queueObject
 						 );
