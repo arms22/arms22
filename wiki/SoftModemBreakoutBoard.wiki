@@ -71,9 +71,13 @@ void loop()
 
 [http://code.google.com/p/arms22/downloads/detail?name=SoftModemTerminal-004.zip SoftModemTerminal-004.zip]
 
-SoftModemTerminalはシンプルなiPhone用のターミナルアプリです。前項のサンプルスケッチを書き込んだArduinoと英数字の送受信を行えます。
+SoftModemTerminalはシンプルなiPhone用のターミナルアプリです。前項のサンプルスケッチを書き込んだArduinoと英数字の送受信が行えます。iPhoneのオーディオ端子に何も接続していないと内蔵スピーカーから大きな音がでるので注意してください。
 
-現在、SoftModemTerminalはAppStoreで配布していません。ソースコードをダウンロードし、Xcodeでビルドして使って下さい。iPhoneのオーディオ端子に何も接続していないと内蔵スピーカーから大きな音がでるので注意してください。
+現在、SoftModemTerminalはAppStoreで配布していません。ソースコードをダウンロードし、ご自身でビルドして使って下さい。
+
+SoftModemTerminalのビルドにはXcodeとiPhone SDKが必要です。XcodeはMacOSXのインストールDVDに収録されています。またAppleの開発者ページでもダウンロードできます。
+
+iPhone SDKはAppleの開発者ページで開発者登録を行うとダウンロードできます。アプリケーションをiPhone実機で動作させるには有償のiPhoneデベロッパプログラム（年間￥10,800）に参加する必要があります。
 
 == iPhoneソースコードの使用方法 ==
 
