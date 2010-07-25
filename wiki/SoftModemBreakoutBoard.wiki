@@ -10,6 +10,8 @@ iPhoneからArduinoへ、ArduinoからiPhoneへデータを送ることができ
 
 寸法：25 x 25mm
 
+[http://www.switch-science.com/products/detail.php?product_id=364 スイッチサイエンス/商品詳細:SoftModemインターフェースボード]
+
 == 接続 ==
 iPhoneとの接続には4極オスオスケーブルをお使いください。ケーブルによってはクロストークが発生し、通信エラーの原因になります。金メッキ端子のシールドされたケーブルをお使いください。ケーブルの長さは短ければ短いほどよいです。
 
