@@ -179,3 +179,9 @@ MainViewController *mainViewController;
 
 ----
 Copyright © [http://arms22.blog91.fc2.com/ なんでも作っちゃう、かも。] All Rights Reserved.
+
+
+
+<wiki:comment>
+This text will be removed from the rendered page.
+</wiki:comment>
