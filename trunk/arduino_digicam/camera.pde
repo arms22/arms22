@@ -70,19 +70,18 @@ bool getJPEGPicture(void)
   photoNo = photoNumber();
   setPhotoNumber(photoNo + 1);
 
-  //  snprintf(buf, sizeof(buf), "/%04d", (photoNo / 500) * 500);
-  //  if( !FatFs.changeDirectory(buf) ){
-  //    FatFs.changeDirectory("/");
-  //    FatFs.createDirectory(&buf[1]);// skip '/'
-  //  }
-  //
-  //  if( !FatFs.changeDirectory(buf) ){
+  snprintf(buf, sizeof(buf), "/%04d", photoNo & 0xff00);
+  if( !FatFs.changeDirectory(buf) ){
+    FatFs.changeDirectory("/");
+    FatFs.createDirectory(&buf[1]);// skip '/'
+    if( !FatFs.changeDirectory(buf) ){
+      goto camera_error;
+    }
+  }
+
+  //  if( !FatFs.changeDirectory("/photos") ){
   //    goto camera_error;
   //  }
-
-  if( !FatFs.changeDirectory("/photos") ){
-    goto camera_error;
-  }
 
   snprintf(buf, sizeof(buf), "img%04d.jpg", photoNo);
   if( !FatFs.createFile(buf) ){
@@ -112,5 +111,6 @@ camera_error:
     return false;
   }
 }
+
 
 
