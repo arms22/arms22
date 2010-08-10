@@ -42,11 +42,6 @@ void setup()
 
   // FATファイルシステム初期化
   if( FatFs.initialize() ){
-
-    // 写真保存用フォルダ作成
-    char dir[] = "photos";
-    FatFs.createDirectory(dir);
-
     green(HIGH);
   }
   else{
@@ -239,7 +234,7 @@ void attention(uint8_t on_off){
 
 void heartbeat(void){
   green(HIGH);
-  sleep(20);
+  sleep(40);
   green(LOW);
   sleep(20);
 }
