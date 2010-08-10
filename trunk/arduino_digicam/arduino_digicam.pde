@@ -179,9 +179,14 @@ void loop()
         last_heartbeat = millis();
       }
 
-      // 最後の操作から30秒経過していたらパワーセーブモードに入る
-      if( millis() - last_button_press > 60000 ){
-        power_save = true;
+      if( gps_logging ){
+        ;
+      }
+      else{
+        // 最後の操作から30秒経過していたらパワーセーブモードに入る
+        if( millis() - last_button_press > 60000 ){
+          power_save = true;
+        }
       }
     }
   }
@@ -251,4 +256,6 @@ void get_datetime(uint16_t* y, uint8_t* m, uint8_t* d, uint8_t* h, uint8_t* n, u
   *s = second();
 }
 #endif
+
+
 
