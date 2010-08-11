@@ -11,6 +11,9 @@
 
 @interface MainViewController : UIViewController <FlipsideViewControllerDelegate, UITextFieldDelegate, CharReceiver> {
 	IBOutlet UITextView *textReceived;
+	int multiByteLength;
+	int multiBytePos;
+	unsigned char multiBytes[16];
 }
 
 - (IBAction)showInfo;

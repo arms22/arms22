@@ -60,15 +60,12 @@
 	return YES;
 }
 
-- (void)inputIsAvailableChanged:(BOOL)isInputAvailable
+- (void)restartAnalyzerAndGenerator:(BOOL)isInputAvailable
 {
-	NSLog(@"inputIsAvailableChanged %d",isInputAvailable);
-	
 	AVAudioSession *session = [AVAudioSession sharedInstance];
-	
+	[session setActive:YES error:nil];
 	[analyzer stop];
 	[generator stop];
-	
 	if(isInputAvailable){
 		[session setCategory:AVAudioSessionCategoryPlayAndRecord error:nil];
 		[analyzer record];
@@ -76,6 +73,12 @@
 		[session setCategory:AVAudioSessionCategoryPlayback error:nil];
 	}
 	[generator play];
+}
+
+- (void)inputIsAvailableChanged:(BOOL)isInputAvailable
+{
+	NSLog(@"inputIsAvailableChanged %d",isInputAvailable);
+	[self restartAnalyzerAndGenerator:isInputAvailable];
 }
 
 - (void)beginInterruption
@@ -86,11 +89,6 @@
 - (void)endInterruption
 {
 	NSLog(@"endInterruption");
-}
-
-- (void)endInterruptionWithFlags:(NSUInteger)flags
-{
-	NSLog(@"endInterruptionWithFlags: %x",flags);
 }
 
 - (void)dealloc {
