@@ -1,4 +1,4 @@
-#labels SoftModem,iPhone,Arduino
+#labels SoftModem,iPhone,Arduino,音響電文
 = SoftModemインターフェースボード =
 <a href="http://www.flickr.com/photos/arms22/4823665444/" title="SoftModem BreakOut Board by arms22, on Flickr"><img src="http://farm5.static.flickr.com/4123/4823665444_39baf725cd.jpg" width="500" height="333" alt="SoftModem BreakOut Board" /></a>
 
@@ -84,11 +84,17 @@ void loop()
 
 SoftModemTerminalはシンプルなiPhone用のターミナルアプリです。前項のサンプルスケッチを書き込んだArduinoと英数字の送受信が行えます。iPhoneのオーディオ端子に何も接続していないと内蔵スピーカーから大きな音がでるので注意してください。
 
-現在、SoftModemTerminalはAppStoreで配布していません。ソースコードをダウンロードし、ご自身でビルドして使って下さい。
+~~現在、SoftModemTerminalはAppStoreで配布していません。ソースコードをダウンロードし、ご自身でビルドして使って下さい。~~
 
 SoftModemTerminalのビルドにはXcodeとiPhone SDKが必要です。XcodeはMacOSXのインストールDVDに収録されています。またAppleの開発者ページでもダウンロードできます。
 
 iPhone SDKはAppleの開発者ページで開発者登録を行うとダウンロードできます。アプリケーションをiPhone実機で動作させるには有償のiPhoneデベロッパプログラム（年間￥10,800）に参加する必要があります。
+
+=== 音響電文 ===
+
+SoftModemTerminal.appがAppStoreからダウンロードできるようになりました。iPhoneアプリケーションの開発環境をお持ちでないかたは次のURLからアプリケーションをダウンロードしてください。
+
+[http://itunes.apple.com/jp/app/id385096654?mt=8 http://itunes.apple.com/jp/app/id385096654?mt=8]
 
 == iPhoneソースコードの使用方法 ==
 
