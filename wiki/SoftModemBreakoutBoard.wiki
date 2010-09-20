@@ -12,6 +12,18 @@ iPhoneからArduinoへ、ArduinoからiPhoneへデータを送ることができ
 
 [http://www.switch-science.com/products/detail.php?product_id=364 スイッチサイエンス/商品詳細:SoftModemインターフェースボード]
 
+== 応用例 ==
+
+AndroidでSoftModemを動かしています: [http://side2.256byte.com/2010/08/android-softmodem/ AndroidでSoftModemを試してみた]
+
+Android用のSoftmodem Terminalアプリケーションです: [http://side2.256byte.com/application/softmodem-terminal/ Softmodem Terminal for Android]
+
+Androidで一眼レフカメラのシャッターを制御しています: [http://side2.256byte.com/2010/09/android-shutter-control/ Androidで一眼レフカメラのシャッターを制御する]
+
+JavaScriptで通信用の音声ファイルを作成、再生させてデータ通信を行っています: [http://d.hatena.ne.jp/NeoCat/20100822/1282486171 SoftModemインターフェースボードとJavaScriptで通信]
+
+
+
 == 制限 ==
 
  * オーディオ端子を使った通信のため、時々データが壊れることがあります。チェックサムやリトライ処理など組み込むことを検討してください。
