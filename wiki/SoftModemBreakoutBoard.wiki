@@ -22,6 +22,7 @@ Androidで一眼レフカメラのシャッターを制御しています: [http
 
 JavaScriptで通信用の音声ファイルを作成、再生させてデータ通信を行っています: [http://d.hatena.ne.jp/NeoCat/20100822/1282486171 SoftModemインターフェースボードとJavaScriptで通信]
 
+RFID Tagリーダーを製作されています: [http://mkroll.mobi/hardware/rfid_tag_reader/rfid_tag_reader.html iPhone RFID Tag Reader]
 
 
 == 制限 ==
