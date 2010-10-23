@@ -1,0 +1,26 @@
+#######################################
+# Syntax Coloring Map For Dtos
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Dtos	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+write	KEYWORD2
+clear	KEYWORD2
+turnOff	KEYWORD2
+turnOn	KEYWORD2
+updateRow	KEYWORD2
+update	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
