@@ -23,8 +23,12 @@
 		702E1D05118D265F00141E6A /* FSKRecognizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 702E1CFB118D265F00141E6A /* FSKRecognizer.mm */; };
 		702E1D07118D265F00141E6A /* MultiDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 702E1D00118D265F00141E6A /* MultiDelegate.m */; };
 		702E1D1D118D270B00141E6A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 702E1D1C118D270B00141E6A /* AudioToolbox.framework */; };
+		70AD3D1F1256DCFD005CC035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 70AD3D1E1256DCFD005CC035 /* InfoPlist.strings */; };
 		70DA68D31203EEE90060B5D3 /* FSKSerialGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 70DA68D21203EEE90060B5D3 /* FSKSerialGenerator.mm */; };
 		70DA68E31203EF830060B5D3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70DA68E21203EF830060B5D3 /* AVFoundation.framework */; };
+		70F7D7B51258E8170049FCAE /* icon-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 70F7D7B21258E8170049FCAE /* icon-ipad.png */; };
+		70F7D7B61258E8170049FCAE /* icon-iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 70F7D7B31258E8170049FCAE /* icon-iphone.png */; };
+		70F7D7B71258E8170049FCAE /* icon-iphone4.png in Resources */ = {isa = PBXBuildFile; fileRef = 70F7D7B41258E8170049FCAE /* icon-iphone4.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,10 +62,16 @@
 		702E1D01118D265F00141E6A /* PatternRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PatternRecognizer.h; path = Classes/PatternRecognizer.h; sourceTree = "<group>"; };
 		702E1D1C118D270B00141E6A /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		702E1D58118D287600141E6A /* CharReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CharReceiver.h; path = Classes/CharReceiver.h; sourceTree = "<group>"; };
+		709BE5DE1256E1690071B63B /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
+		70AD3D1C1256DCF3005CC035 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		70AD3D201256DD08005CC035 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		70D1A3A71192DE50009B9356 /* FSKModemConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKModemConfig.h; path = Classes/FSKModemConfig.h; sourceTree = "<group>"; };
 		70DA68D11203EEE90060B5D3 /* FSKByteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSKByteQueue.h; path = Classes/FSKByteQueue.h; sourceTree = "<group>"; };
 		70DA68D21203EEE90060B5D3 /* FSKSerialGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSKSerialGenerator.mm; path = Classes/FSKSerialGenerator.mm; sourceTree = "<group>"; };
 		70DA68E21203EF830060B5D3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		70F7D7B21258E8170049FCAE /* icon-ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-ipad.png"; sourceTree = "<group>"; };
+		70F7D7B31258E8170049FCAE /* icon-iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iphone.png"; sourceTree = "<group>"; };
+		70F7D7B41258E8170049FCAE /* icon-iphone4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iphone4.png"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* MultiTrigger-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MultiTrigger-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -144,10 +154,15 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				70F7D7B21258E8170049FCAE /* icon-ipad.png */,
+				70F7D7B31258E8170049FCAE /* icon-iphone.png */,
+				70F7D7B41258E8170049FCAE /* icon-iphone4.png */,
 				280E754A0DD40C5E005A515E /* FlipsideView.xib */,
 				280E754B0DD40C5E005A515E /* MainView.xib */,
 				280E754C0DD40C5E005A515E /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* MultiTrigger-Info.plist */,
+				70AD3D1E1256DCFD005CC035 /* InfoPlist.strings */,
+				709BE5DE1256E1690071B63B /* Entitlements.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -215,6 +230,7 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MultiTrigger" */;
 			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -222,6 +238,7 @@
 				French,
 				German,
 				en,
+				ja,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
@@ -240,6 +257,10 @@
 				280E754D0DD40C5E005A515E /* FlipsideView.xib in Resources */,
 				280E754E0DD40C5E005A515E /* MainView.xib in Resources */,
 				280E754F0DD40C5E005A515E /* MainWindow.xib in Resources */,
+				70AD3D1F1256DCFD005CC035 /* InfoPlist.strings in Resources */,
+				70F7D7B51258E8170049FCAE /* icon-ipad.png in Resources */,
+				70F7D7B61258E8170049FCAE /* icon-iphone.png in Resources */,
+				70F7D7B71258E8170049FCAE /* icon-iphone4.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,11 +286,24 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXVariantGroup section */
+		70AD3D1E1256DCFD005CC035 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				70AD3D1C1256DCF3005CC035 /* English */,
+				70AD3D201256DD08005CC035 /* ja */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "~/Desktop/ghost_trunk/MultiTrigger/Entitlements.plist";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -284,6 +318,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "~/Desktop/ghost_trunk/MultiTrigger/Entitlements.plist";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MultiTrigger_Prefix.pch;
@@ -297,15 +332,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: yusuke sasaki";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_CODE_SIGN_FLAGS = "";
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				SDKROOT = iphoneos4.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BB3454D4-35FB-40F0-99E2-60497E638410";
+				SDKROOT = iphoneos3.2;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Distribution;
 		};
@@ -313,6 +350,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "~/Desktop/ghost_trunk/MultiTrigger/Entitlements.plist";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MultiTrigger_Prefix.pch;
