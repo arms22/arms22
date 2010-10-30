@@ -27,37 +27,79 @@
 Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
 
 const byte scroll_image[] = {
-  B00001100,
-  B00011110,
-  B00111110,
-  B01111100,
-  B00111110,
-  B00011110,
-  B00001100,
+  B00000000,
+  B01111000,
+  B00000000,
+  B01110000,
+  B00101000,
+  B00101000,
+  B01110000,
+  B00000000,
+  B01111000,
+  B00010000,
+  B00010000,
+  B01111000,
+  B00000000,
+  B01100000,
+  B01010000,
+  B01110000,
+  B00000000, 
+  B01100000, 
+  B01010000, 
+  B01111000, 
+  B00000000, 
+  B00110000, 
+  B01001000, 
+  B01001000, 
+  B00110000, 
+  B00000000, 
+  B00010000, 
+  B01111000,
+  B01010000, 
+  B00000000, 
+  B01010000, 
+  B01101000, 
+  B00001000, 
   B00000000,
 };
 
-int y;
+int img_h = sizeof(scroll_image) / sizeof(scroll_image[0]);
+int wnd_y;
 
 void setup()
 {
-  y = 0;
+  wnd_y = -8;
   myDots.begin();
 }
 
 void loop()
 {
   myDots.clear();
-  if(y < 8){
-    myDots.write(0, &scroll_image[8-y], y);
+
+  if(wnd_y < 0){
+    myDots.write(-wnd_y, &scroll_image[0], 8 + wnd_y);
   }
-  else if(y < 16){
-    myDots.write(y-8, scroll_image, 16-y);
+  else if(wnd_y < (img_h - 8)){
+    myDots.write(0, &scroll_image[wnd_y], 8);
   }
   else{
-    y = 0;
+    myDots.write(0, &scroll_image[wnd_y], img_h - wnd_y);
   }
-  y++;
+
+  wnd_y++;
+  if(wnd_y >= img_h){
+    wnd_y = -8;
+  }
+
   myDots.update(12);
 }
+
+
+
+
+
+
+
+
+
 

@@ -123,7 +123,6 @@ bool Dots::update(uint16_t time)
 		unsigned long t = micros();
 		if((t - _lastUpdateTime) > _updateInterval){
 			turnOff();
-			delayMicroseconds(100);
 			updateRow();
 			turnOn();
 			_lastUpdateTime = t;
