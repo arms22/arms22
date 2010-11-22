@@ -1,12 +1,12 @@
 #######################################
-# Syntax Coloring Map For Dtos
+# Syntax Coloring Map For Dots
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-Dtos	KEYWORD1
+Dots	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -19,6 +19,7 @@ turnOff	KEYWORD2
 turnOn	KEYWORD2
 updateRow	KEYWORD2
 update	KEYWORD2
+updateWithDelay	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
