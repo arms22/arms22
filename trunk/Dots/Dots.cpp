@@ -24,7 +24,7 @@ Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 	
 	_numOfRows = 8;
 	_numOfCols = 8;
-	_updateInterval = (16666 / 8);
+	_updateInterval = (8333 / 8);
 }
 
 Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
@@ -40,7 +40,7 @@ Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 	
 	_numOfRows = 7;
 	_numOfCols = 5;
-	_updateInterval = (16666 / 7);
+	_updateInterval = (8333 / 7);
 }
 
 void Dots::begin(void)
@@ -115,20 +115,30 @@ void Dots::updateRow(void)
 	}
 }
 
-bool Dots::update(uint16_t time)
+bool Dots::update(void)
 {
-	uint16_t cnt = 0;
+	unsigned long t = micros();
 	bool sync = false;
-	do{
-		unsigned long t = micros();
-		if((t - _lastUpdateTime) > _updateInterval){
-			turnOff();
-			updateRow();
-			turnOn();
-			_lastUpdateTime = t;
-			sync = (_row == (_numOfRows-1));
-			cnt += sync;
-		}
-	}while(cnt < time);
+	if((t - _lastUpdateTime) > _updateInterval){
+		turnOff();
+		updateRow();
+		turnOn();
+		_lastUpdateTime = t;
+		sync = (_row == (_numOfRows-1));
+	}
 	return sync;
+}
+
+void Dots::updateWithDelay(unsigned long ms)
+{
+	unsigned long start = millis();
+	do{
+		bool sync = update();
+		if(sync){
+			unsigned long t = millis();
+			if((t - start) >= ms){
+				break;
+			}
+		}
+	}while(1);
 }
