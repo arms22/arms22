@@ -72,9 +72,9 @@ void setup()
 void loop()
 {
   myDots.write(0, one, 8);
-  myDots.update(54);
-
+  myDots.updateWithDelay(750);
+  
   myDots.write(0, two, 8);
-  myDots.update(9);
+  myDots.updateWithDelay(250);
 }
 

@@ -50,13 +50,13 @@ void loop()
   }
   else if(y == 8){
     myDots.write(0, invA, 8);
-    myDots.update(12);
+	myDots.updateWithDelay(150);
     myDots.write(0, invB, 8);
-    myDots.update(12);
+	myDots.updateWithDelay(150);
     myDots.write(0, invA, 8);
-    myDots.update(12);
+	myDots.updateWithDelay(150);
     myDots.write(0, invB, 8);    
-    myDots.update(12);
+	myDots.updateWithDelay(150);
     myDots.write(0, invA, 8);
   }
   else if(y < 16){
@@ -66,7 +66,5 @@ void loop()
     y = 0;
   }
   y++;
-  myDots.update(8);
+  myDots.updateWithDelay(100);
 }
-
-

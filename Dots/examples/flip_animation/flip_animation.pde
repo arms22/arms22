@@ -50,9 +50,8 @@ void setup()
 void loop()
 {
   myDots.write(2, one, 5);
-  myDots.update(60);
+  myDots.updateWithDelay(750);
 
   myDots.write(2, two, 5);
-  myDots.update(60);
+  myDots.updateWithDelay(750);
 }
-

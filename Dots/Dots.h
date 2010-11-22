@@ -43,7 +43,8 @@ public:
 	void turnOff(void);
 	void turnOn(void);
 	void updateRow(void);
-	bool update(uint16_t time = 0);
+	bool update(void);
+	void updateWithDelay(unsigned long ms);
 };
 
 #endif	// Dots.h

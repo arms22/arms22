@@ -51,6 +51,6 @@ void loop()
   myDots.write(0, wave+len, x);
   x++;
   if(x == 8) x = 0;
-  myDots.update(8);
+  myDots.updateWithDelay(80);
 }
 
