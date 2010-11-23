@@ -76,7 +76,7 @@ void SevenSegment::updateDigit(void)
 	if(_currentDigit >= _numberOfDigits)
 		_currentDigit = 0;
 	data = _numericData[_currentDigit];
-	mask = 0x1;
+	mask = 1;
 	for(i=0; i<_numberOfSegments; i++){
 		digitalWrite(_segmentPins[i], data & mask);
 		data >>= 1;
@@ -93,7 +93,7 @@ bool SevenSegment::update(void)
 		updateDigit();
 		digitOn();
 		_lastUpdateTime = cur;
-		return _currentDigit == 0;
+		return _currentDigit == (_numberOfDigits-1);
 	}
 	return false;
 }
