@@ -451,7 +451,7 @@ int NewSoftSerial::read(void)
   return d;
 }
 
-uint8_t NewSoftSerial::available(void)
+int NewSoftSerial::available(void)
 {
   // A newly activated object never has any rx data
   if (activate())
