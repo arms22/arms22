@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map For JPEGCamera
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+JPEGCamera	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+reset	KEYWORD2
+getSize	KEYWORD2
+takePicture	KEYWORD2
+stopPicture	KEYWORD2
+readData	KEYWORD2
+imageSize	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+IMG_SZ_160x120	LITERAL1
+IMG_SZ_320x240	LITERAL1
+IMG_SZ_640x480	LITERAL1
