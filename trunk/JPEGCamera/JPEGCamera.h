@@ -28,10 +28,10 @@ public:
 	uint16_t readData(uint8_t * buffer, uint16_t read_size, uint16_t address);
 	bool imageSize(JPEGCamera::ImageSize size);
 private:
-	void sendCommand(uint8_t length);
-	uint16_t recvResponse(uint8_t * response, uint16_t length, unsigned long timeout);
+	uint8_t commandAndResponse(uint8_t cmd_sz,uint8_t res_sz);
+	uint8_t recvResponse(uint8_t * response, uint8_t size, uint16_t timeout);
 	Stream &cameraPort;
-	uint8_t sndRcvBuf[16];
+	uint8_t cmdResBuffer[16];
 };
 
 #endif
