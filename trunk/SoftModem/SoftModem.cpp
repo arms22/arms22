@@ -248,18 +248,23 @@ ISR(TIMER2_COMPA_vect)
 #endif  
 }
 
-uint8_t SoftModem::available(void)
+int SoftModem::available()
 {
 	return (_recvBufferTail + SOFT_MODEM_MAX_RX_BUFF - _recvBufferHead) & (SOFT_MODEM_MAX_RX_BUFF - 1);
 }
 
-int SoftModem::read(void)
+int SoftModem::read()
 {
 	if(_recvBufferHead == _recvBufferTail)
 		return -1;
 	int d = _recvBuffer[_recvBufferHead];
 	_recvBufferHead = (_recvBufferHead + 1) & (SOFT_MODEM_MAX_RX_BUFF - 1);
 	return d;
+}
+
+void SoftModem::flush()
+{
+	_recvBufferHead = _recvBufferTail = 0;
 }
 
 void SoftModem::modulate(uint8_t b)
