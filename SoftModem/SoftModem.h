@@ -1,7 +1,7 @@
 #ifndef SoftModem_h
 #define SoftModem_h
 
-#include <Print.h>
+#include <Stream.h>
 #include <inttypes.h>
 
 //#define SOFT_MODEM_BAUD_RATE   (126)
@@ -47,7 +47,7 @@
 
 #define SOFT_MODEM_DEBUG       (0)
 
-class SoftModem : public Print
+class SoftModem : public Stream
 {
 private:
 	volatile uint8_t *_txPortReg;
@@ -67,9 +67,10 @@ public:
 	~SoftModem();
 	void begin(void);
 	void end(void);
-	uint8_t available(void);
-	int read(void);
-	void write(uint8_t data);
+	virtual int available();
+	virtual int read();
+	virtual void flush();
+	virtual void write(uint8_t data);
 	void demodulate(void);
 	void recv(void);
 	static SoftModem *activeObject;
