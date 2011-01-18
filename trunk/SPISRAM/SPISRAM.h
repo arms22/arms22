@@ -15,6 +15,23 @@
 class SPISRAM
 {
 public:
+	struct MemCell {
+		SPISRAM &device;
+		unsigned int address;
+		MemCell &operator=(byte data){
+			device.write(address,data);
+			return *this;
+		}
+		operator byte() {
+			return device.read(address);
+		}
+		MemCell(SPISRAM &d,unsigned int a) : device(d), address(a) {};
+		~MemCell(){};
+	};
+	MemCell operator[](unsigned int address){
+		MemCell memcell(*this,address);
+		return memcell;
+	}
 	SPISRAM(byte ncsPin);
 	byte read(unsigned int address);
 	void read(unsigned int address, byte *buffer, unsigned int size);
