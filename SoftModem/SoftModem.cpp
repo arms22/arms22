@@ -262,6 +262,13 @@ int SoftModem::read()
 	return d;
 }
 
+int SoftModem::peek()
+{
+	if(_recvBufferHead == _recvBufferTail)
+		return -1;
+	return _recvBuffer[_recvBufferHead];
+}
+
 void SoftModem::flush()
 {
 	_recvBufferHead = _recvBufferTail = 0;
