@@ -70,6 +70,7 @@ public:
 	virtual int available();
 	virtual int read();
 	virtual void flush();
+	virtual int peek();
 	virtual void write(uint8_t data);
 	void demodulate(void);
 	void recv(void);
