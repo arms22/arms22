@@ -83,8 +83,9 @@ public:
   ~NewSoftSerial();
   void begin(long speed);
   void end();
-  virtual int read(void);
-  virtual int available(void);
+  virtual int read();
+  virtual int available();
+  virtual int peek();
   bool active() { return this == active_object; }
   bool overflow() { bool ret = _buffer_overflow; _buffer_overflow = false; return ret; }
   static int library_version() { return _NewSS_VERSION; }

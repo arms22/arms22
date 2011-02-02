@@ -433,7 +433,7 @@ void NewSoftSerial::end()
 
 
 // Read data from buffer
-int NewSoftSerial::read(void)
+int NewSoftSerial::read()
 {
   uint8_t d;
 
@@ -451,13 +451,27 @@ int NewSoftSerial::read(void)
   return d;
 }
 
-int NewSoftSerial::available(void)
+int NewSoftSerial::available()
 {
   // A newly activated object never has any rx data
   if (activate())
     return 0;
 
   return (_receive_buffer_tail + _NewSS_MAX_RX_BUFF - _receive_buffer_head) % _NewSS_MAX_RX_BUFF;
+}
+
+int NewSoftSerial::peek()
+{
+  // A newly activated object never has any rx data
+  if (activate())
+    return -1;
+
+  // Empty buffer?
+  if (_receive_buffer_head == _receive_buffer_tail)
+    return -1;
+
+  // Read from "head"
+  return _receive_buffer[_receive_buffer_head];
 }
 
 void NewSoftSerial::write(uint8_t b)
