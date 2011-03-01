@@ -31,14 +31,16 @@ void setup()
   pinMode(wakeupPin, INPUT);
   digitalWrite(wakeupPin, HIGH);
 
-  sleep(11);
-  button.update();
+  gps_init();
 
   sleep(11);
   button.update();
 
-  // 日時初期化 2010/4/1 9:00:00
-  setTime(9, 0, 0, 22, 5, 2010);
+  sleep(11);
+  button.update();
+
+  // 日時初期化 2010/8/11 9:00:00
+  setTime(9, 0, 0, 12, 8, 2010);
 
   // FATファイルシステム初期化
   if( FatFs.initialize() ){
@@ -76,7 +78,7 @@ void loop()
   }
 
   if( power_save ){
-    uint8_t fade_index = (millis() >> 6) & 0x3f;
+    uint8_t fade_index = (millis() >> 6) & 0x7f;
     if(fade_index < sizeof(ledFadeStepTable)){
       analogWrite(ledGrnPin, ledFadeStepTable[fade_index]);
     }
@@ -174,14 +176,9 @@ void loop()
         last_heartbeat = millis();
       }
 
-      if( gps_logging ){
-        ;
-      }
-      else{
-        // 最後の操作から30秒経過していたらパワーセーブモードに入る
-        if( millis() - last_button_press > 60000 ){
-          power_save = true;
-        }
+      // 最後の操作から60秒経過していたらパワーセーブモードに入る
+      if( millis() - last_button_press > 60000 ){
+        power_save = true;
       }
     }
   }
@@ -251,6 +248,9 @@ void get_datetime(uint16_t* y, uint8_t* m, uint8_t* d, uint8_t* h, uint8_t* n, u
   *s = second();
 }
 #endif
+
+
+
 
 
 
