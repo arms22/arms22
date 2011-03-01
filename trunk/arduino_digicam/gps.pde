@@ -19,9 +19,16 @@ char    fetchData[200];
 // ファイル保存用
 File    gpslog;
 
+void gps_init(void)
+{
+  pinMode(gpsRxPin, INPUT);
+  pinMode(gpsTxPin, INPUT);
+  pinMode(gpsPowerPin, OUTPUT);
+  digitalWrite(gpsPowerPin, LOW);
+}
+
 void gps_powerOn(void)
 {
-  pinMode(gpsPowerPin, OUTPUT);
   digitalWrite(gpsPowerPin, HIGH);
   sleep(200);
   gpsPort.flush();
@@ -52,7 +59,8 @@ void gps_suspend(bool suspend)
 {
   if( suspend ){
     gpsPort.end();
-  }else{
+  }
+  else{
     gpsPort.flush();
     gpsPort.begin(gpsBaud);
   }
@@ -122,3 +130,4 @@ time_t gps_timeSync()
 
   return 0;
 }
+
