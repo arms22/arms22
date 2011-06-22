@@ -1,38 +1,33 @@
-// define pin
+// 端子定義
 const int arefPin = 0;
-const int voltagePin = 4;
-const int currentPin = 3;
 
-// mains frequency
-#define POWER_FREQ (60)
+// 商用電源周波数
+#define POWER_FREQ        (60)
 
-// number of samples per cycle
+// １サイクルあたりのサンプル数
 #define NUMBER_OF_SAMPLES (25)
 
-// sample interval (in microseconds)
-#define SAMPLING_PERIOD (1000000 / (POWER_FREQ * NUMBER_OF_SAMPLES))
+// サンプリング間隔(マイクロ秒)
+#define SAMPLING_PERIOD   (1000000/(POWER_FREQ * NUMBER_OF_SAMPLES))
 
-// buffer samples
+// サンプリング用バッファ
 int VASamples[NUMBER_OF_SAMPLES*4];
 
-void calcWatt (void)
+void calcWatt (int ctPin, int vtPin)
 {
-#define kVT (86.9817579) // based on the measured coefficient
-#define kCT (100.0 * 0.99 / 800.0) // R * factor / number of turns
+  unsigned long t1,t2;
+  int i,r,v1,a1,a2,v2;
 
-  unsigned long t1, t2;
-  int i, r, v1, a1, a2, v2;
+  t1 = micros();
 
-  t1 = micros ();
-
-  // sampling cycle of 1 AD values
+  // １サイクル分のAD値をサンプリング
   for(i=0; i<NUMBER_OF_SAMPLES; i++){
 
-    r = analogRead(arefPin);
-    v1 = analogRead(voltagePin);
-    a1 = analogRead(currentPin);
-    a2 = analogRead(currentPin);
-    v2 = analogRead(voltagePin);
+    r  = analogRead(arefPin);
+    v1 = analogRead(vtPin);
+    a1 = analogRead(ctPin);
+    a2 = analogRead(ctPin);
+    v2 = analogRead(vtPin);
 
     VASamples[(i*4)+0] = v1 - r;
     VASamples[(i*4)+1] = a1 - r;
@@ -46,12 +41,12 @@ void calcWatt (void)
     t1 += SAMPLING_PERIOD;
   }
 
-  // one cycle of voltage and current, plus the power
+  // １サイクル分の電圧と電流、電力を加算
   Vrms = 0;
   Irms = 0;
   Watt = 0;
 
-  for (i=0; i <NUMBER_OF_SAMPLES; i++) {
+  for(i=0; i<NUMBER_OF_SAMPLES; i++){
     v1 = VASamples[(i*4)+0];
     a1 = VASamples[(i*4)+1];
     a2 = VASamples[(i*4)+2];
@@ -65,11 +60,10 @@ void calcWatt (void)
     Watt += vv * aa;
   }
 
-  // root mean square 2 (rms) obtained
+  // 2乗平均平方根(rms)を求める
   Vrms = sqrt(Vrms / NUMBER_OF_SAMPLES);
   Irms = sqrt(Irms / NUMBER_OF_SAMPLES);
 
-  // find the average power
+  // 平均電力を求める
   Watt = Watt / NUMBER_OF_SAMPLES;
 }
-
