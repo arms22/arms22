@@ -1,12 +1,12 @@
 #######################################
-# Syntax Coloring Map For NixieTubes
+# Syntax Coloring Map For SevenSegment
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-NixieTubes	KEYWORD1
+SevenSegment	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -14,12 +14,15 @@ NixieTubes	KEYWORD1
 
 begin	KEYWORD2
 write	KEYWORD2
-anodeOn	KEYWORD2
-anodeOff	KEYWORD2
-updateTube	KEYWORD2
+setDigit	KEYWORD2
+setDp	KEYWORD2
+print	KEYWORD2
 update	KEYWORD2
+updateWithDelay	KEYWORD2
+
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 
+NUMERICAL_NUMBER	LITERAL1

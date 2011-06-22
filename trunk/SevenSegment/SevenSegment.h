@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#define NUMBER_OF_MAXDIGITS    14	/* YYYY.MM.DD hh:mm:ss */
+#define NUMBER_OF_MAXDIGITS    4	/* YYYY.MM.DD hh:mm:ss */
 #define NUMBER_OF_SEGMENTS     8
 
 #define SEG_A_BIT  0x01
@@ -26,20 +26,21 @@ private:
 	uint8_t _numberOfDigits;
 	uint8_t _numberOfSegments;
 	uint8_t _currentDigit;
-	//uint8_t _anodeCommon;
-	void init(uint8_t digits[],uint8_t segments[]);
 public:
 	SevenSegment(uint8_t dig1, uint8_t dig2, uint8_t dig3, uint8_t dig4,
 				 uint8_t segA, uint8_t segB, uint8_t segC, uint8_t segD,
 				 uint8_t segE, uint8_t segF, uint8_t segG, uint8_t segDP);
 	void begin(void);
 	void write(uint8_t digit,uint8_t value);
+	void setDigit(uint8_t digit,uint8_t number);
+	void setDp(uint8_t digit,bool value);
+	void print(int value);
 	void digitOn(void);
 	void digitOff(void);
 	void updateDigit(void);
 	bool update(void);
-	void print(long value);
-	static const uint8_t NUMERICAL_NUMBER[10];
+	void updateWithDelay(unsigned long ms);
+	static const uint8_t Font[10];
 };
 
 #endif
