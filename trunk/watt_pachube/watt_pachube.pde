@@ -3,6 +3,12 @@
 #include <EthernetDHCP.h>
 #include "settings.h"
 
+// Pin definition
+const int ct1Pin = 1;
+const int vt1Pin = 2;
+const int ct2Pin = 3;
+const int vt2Pin = 4;
+
 // The IP address of api.pachube.com
 byte serverIpAddress[] = { 
   173, 203, 98, 29 };
@@ -25,16 +31,22 @@ float Irms;
 float Watt;
 
 float watt_hour;
+
 float vrms_sum;
 float irms_sum;
 float watt_sum;
+
+float vrms_sum2;
+float irms_sum2;
+float watt_sum2;
+
 int   watt_samples;
 
 String csvData = "";
 
 void setup()
 {
-  Serial.begin(57600);
+  Serial.begin(115200);
   delay(3000);
 
   Serial.println("Attempting to obtain a DHCP lease...");
@@ -63,6 +75,9 @@ void setup()
   vrms_sum      = 0;
   irms_sum      = 0;
   watt_sum      = 0;
+  vrms_sum2     = 0;
+  irms_sum2     = 0;
+  watt_sum2     = 0;
   watt_samples	= 0;
 }
 
@@ -85,12 +100,21 @@ void loop()
   }
 
   // Calculate the power
-  calcWatt();
+  calcWatt(ct1Pin, vt1Pin);
 
   // Adding the results
   vrms_sum += Vrms;
   irms_sum += Irms;
   watt_sum += Watt;
+
+  // Calculate the power
+  calcWatt(ct2Pin, vt2Pin);
+
+  // Adding the results
+  vrms_sum2 += Vrms;
+  irms_sum2 += Irms;
+  watt_sum2 += Watt;
+
   watt_samples++;
 
   if (millis() > nextExecuteMillis) {
@@ -102,14 +126,55 @@ void loop()
     irms_sum  /= watt_samples;
     watt_sum  /= watt_samples;
 
+    Serial.print("1 ");
+    Serial.print(vrms_sum);
+    Serial.print(" Vrms, ");
+
+    Serial.print(irms_sum);
+    Serial.print(" Irms, ");
+
+    Serial.print(vrms_sum * irms_sum);
+    Serial.print(" VA, ");
+
+    Serial.print(watt_sum);
+    Serial.print(" W, ");
+
+    Serial.print((watt_sum * 100) / (vrms_sum * irms_sum));
+    Serial.println(" %, ");
+
+    vrms_sum2 /= watt_samples;
+    irms_sum2 /= watt_samples;
+    watt_sum2 /= watt_samples;
+
+    Serial.print("2 ");
+    Serial.print(vrms_sum2);
+    Serial.print(" Vrms, ");
+
+    Serial.print(irms_sum2);
+    Serial.print(" Irms, ");
+
+    Serial.print(vrms_sum2 * irms_sum2);
+    Serial.print(" VA, ");
+
+    Serial.print(watt_sum2);
+    Serial.print(" W, ");
+
+    Serial.print((watt_sum2 * 100) / (vrms_sum2 * irms_sum2));
+    Serial.println(" %, ");
+
     // Calculate the watt-hour
-    watt_hour += watt_sum / (3600000 / updateIntervalInMillis);
+    watt_hour += (watt_sum + watt_sum2) / (3600000 / updateIntervalInMillis);
 
     updateDataStream();
     nextExecuteMillis = millis() + updateIntervalInMillis;
 
+    vrms_sum     = 0;
+    irms_sum     = 0;
+    watt_sum     = 0;
+    vrms_sum2    = 0;
+    irms_sum2    = 0;
+    watt_sum2    = 0;
     watt_samples = 0;
-    vrms_sum = irms_sum = watt_sum = 0;
   }
 }
 
@@ -150,18 +215,23 @@ void updateDataStream(void)
   appendFloatValueAsString(csvData, irms_sum);
   csvData += "\n";
 
-  // 3	VA		volt-ampere (VA)
+  // 3	Watt		Watt (W)
   csvData += "3,";
-  appendFloatValueAsString(csvData, (vrms_sum * irms_sum));
+  appendFloatValueAsString(csvData, watt_sum2);
   csvData += "\n";
 
-  // 4	Power ratio		percent (%)
+  // 4	Vrms		volts root mean square (Vrms)
   csvData += "4,";
-  appendFloatValueAsString(csvData, (watt_sum * 100) / (vrms_sum * irms_sum));
+  appendFloatValueAsString(csvData, vrms_sum2);
   csvData += "\n";
 
-  // 5	Watt-hour		watt-hour (Wh)
+  // 5	Irms		ampere root mean square (Irms)
   csvData += "5,";
+  appendFloatValueAsString(csvData, irms_sum2);
+  csvData += "\n";
+
+  // 6	Watt-hour		watt-hour (Wh)
+  csvData += "6,";
   appendFloatValueAsString(csvData, watt_hour);
   csvData += "\n";
 
@@ -180,6 +250,3 @@ void updateDataStream(void)
   client.println();
   client.println(csvData);
 }
-
-
-
