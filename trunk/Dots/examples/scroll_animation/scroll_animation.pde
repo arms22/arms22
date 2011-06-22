@@ -24,7 +24,7 @@
 
 #include <Dots.h>
 
-Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
+Dots myDots = Dots();
 
 const byte scroll_image[] = {
   B00000000,
@@ -94,16 +94,7 @@ void loop()
   if(wnd_y >= img_h){
     wnd_y = -8;
   }
-  
-  myDots.updateWithDelay(100);
+
+  delay(100);
 }
-
-
-
-
-
-
-
-
-
 

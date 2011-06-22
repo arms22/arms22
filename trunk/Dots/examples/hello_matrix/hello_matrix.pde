@@ -24,13 +24,11 @@
 
 #include <Dots.h>
 
-
-Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
+Dots myDots = Dots();
 
 void setup()
 {
   myDots.begin();
-
   myDots.write(1, 5, HIGH);
   myDots.write(2, 2, HIGH);
   myDots.write(2, 6, HIGH);
@@ -43,6 +41,4 @@ void setup()
 
 void loop()
 {
-  myDots.update();
 }
-

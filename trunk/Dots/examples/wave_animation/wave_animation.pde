@@ -24,7 +24,7 @@
 
 #include <Dots.h>
 
-Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
+Dots myDots = Dots();
 
 const byte wave[] = {
   B00110000,
@@ -51,6 +51,5 @@ void loop()
   myDots.write(0, wave+len, x);
   x++;
   if(x == 8) x = 0;
-  myDots.updateWithDelay(80);
+  delay(80);
 }
-

@@ -1,5 +1,5 @@
 /*
-  Dots.cpp - Arduino library for 8x8/5x7 LED Dot Matrix.
+  Dots.cpp - Arduino library for 8x8/5x7 Dot LED Matrix.
   Copyright 2010 arms22. All right reserved.
   
   This library is distributed in the hope that it will be useful,
@@ -7,9 +7,34 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 */
 
-#include <WConstants.h>
+#include <wiring.h>
 #include <pins_arduino.h>
+#include <avr/interrupt.h>
 #include "Dots.h"
+
+Dots::Dots()
+{
+	_rowPins[0] = 9;
+	_rowPins[1] = 4;
+	_rowPins[2] = 10;
+	_rowPins[3] = 6;
+	_rowPins[4] = 17;
+	_rowPins[5] = 11;
+	_rowPins[6] = 16;
+	_rowPins[7] = 13;
+	
+	_colPins[0] = 5;
+	_colPins[1] = 15;
+	_colPins[2] = 14;
+	_colPins[3] = 8;
+	_colPins[4] = 12;
+	_colPins[5] = 7;
+	_colPins[6] = 3;
+	_colPins[7] = 2;
+	
+	_numOfRows = 8;
+	_numOfCols = 8;
+}
 
 Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 		   uint8_t r4,uint8_t r5,uint8_t r6,uint8_t r7,
@@ -24,7 +49,6 @@ Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 	
 	_numOfRows = 8;
 	_numOfCols = 8;
-	_updateInterval = (8333 / 8);
 }
 
 Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
@@ -40,7 +64,6 @@ Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 	
 	_numOfRows = 7;
 	_numOfCols = 5;
-	_updateInterval = (8333 / 7);
 }
 
 void Dots::begin(void)
@@ -53,6 +76,17 @@ void Dots::begin(void)
 		pinMode(_colPins[i], OUTPUT);
 	}
 	clear();
+	Dots::active_object = this;
+	TCCR0A	= 0;
+	OCR0A	= 0;
+	TIFR0  |= _BV(OCF0A);
+	TIMSK0 |= _BV(OCIE0A);
+}
+
+void Dots::end(void)
+{
+	TIMSK0 &= ~_BV(OCIE0A);
+	Dots::active_object = 0;
 }
 
 void Dots::write(uint8_t x, uint8_t y, uint8_t value)
@@ -86,19 +120,10 @@ void Dots::clear(void)
 	_row = _numOfRows - 1;
 }
 
-void Dots::turnOff(void)
-{
-	digitalWrite(_rowPins[_row], LOW);
-}
-
-void Dots::turnOn(void)
-{
-	digitalWrite(_rowPins[_row], HIGH);
-}
-
-void Dots::updateRow(void)
+void Dots::update(void)
 {
 	uint8_t i,data,mask;
+	digitalWrite(_rowPins[_row], LOW);
 	_row++;
 	if(_row >= _numOfRows){
 		_row = 0;
@@ -113,32 +138,14 @@ void Dots::updateRow(void)
 		}
 		mask >>= 1;
 	}
+	digitalWrite(_rowPins[_row], HIGH);
 }
 
-bool Dots::update(void)
+Dots *Dots::active_object = 0;
+
+SIGNAL(TIMER0_COMPA_vect)
 {
-	unsigned long t = micros();
-	bool sync = false;
-	if((t - _lastUpdateTime) > _updateInterval){
-		turnOff();
-		updateRow();
-		turnOn();
-		_lastUpdateTime = t;
-		sync = (_row == (_numOfRows-1));
+	if(Dots::active_object){
+		Dots::active_object->update();
 	}
-	return sync;
-}
-
-void Dots::updateWithDelay(unsigned long ms)
-{
-	unsigned long start = millis();
-	do{
-		bool sync = update();
-		if(sync){
-			unsigned long t = millis();
-			if((t - start) >= ms){
-				break;
-			}
-		}
-	}while(1);
 }
