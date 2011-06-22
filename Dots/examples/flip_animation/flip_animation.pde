@@ -24,19 +24,19 @@
 
 #include <Dots.h>
 
-Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
+Dots myDots = Dots();
 
 const byte one[] = {
-  B00000010,
-  B01000000,
+  B01000010,
+  B00000000,
   B00000000,
   B00111100,
   B00000000,
 };
 
 const byte two[] = {
-  B01000000,
-  B00000010,
+  B00000000,
+  B00000000,
   B00000000,
   B00111100,
   B00000000,
@@ -49,9 +49,15 @@ void setup()
 
 void loop()
 {
-  myDots.write(2, one, 5);
-  myDots.updateWithDelay(750);
-
-  myDots.write(2, two, 5);
-  myDots.updateWithDelay(750);
+  int num = (random() % 2) + 1;
+  for(int i=0; i<num; i++){
+    myDots.write(2, two, 5);
+    delay(100 + (random() % 50));
+    
+    myDots.write(2, one, 5);
+    delay(100 + (random() % 50));
+  }
+  delay(1000 + (random() % 4000));
 }
+
+

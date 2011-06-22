@@ -24,14 +24,28 @@
 
 #include <Dots.h>
 
-Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
+Dots myDots = Dots();
 
-const byte invA[] = {
-  B11111100, B10001110, B00011011, B00101110, B00101110, B00011011, B10001110, B11111100,
+const byte inv_a[] = {
+  B11111100,
+  B10001110,
+  B00011011,
+  B00101110,
+  B00101110,
+  B00011011,
+  B10001110,
+  B11111100,
 };
 
-const byte invB[] = {
-  B11111000, B10111100, B00010101, B01111110, B01111110, B00010101, B10111100, B11111000,
+const byte inv_b[] = {
+  B11111000,
+  B10111100,
+  B00010101,
+  B01111110,
+  B01111110,
+  B00010101,
+  B10111100,
+  B11111000,
 };
 
 int y;
@@ -46,25 +60,25 @@ void loop()
 {
   myDots.clear();
   if(y < 8){
-    myDots.write(0, &invA[8-y], y);
+    myDots.write(0, &inv_a[8-y], y);
   }
   else if(y == 8){
-    myDots.write(0, invA, 8);
-	myDots.updateWithDelay(150);
-    myDots.write(0, invB, 8);
-	myDots.updateWithDelay(150);
-    myDots.write(0, invA, 8);
-	myDots.updateWithDelay(150);
-    myDots.write(0, invB, 8);    
-	myDots.updateWithDelay(150);
-    myDots.write(0, invA, 8);
+    myDots.write(0, inv_a, 8);
+	delay(150);
+    myDots.write(0, inv_b, 8);
+	delay(150);
+    myDots.write(0, inv_a, 8);
+	delay(150);
+    myDots.write(0, inv_b, 8);    
+	delay(150);
+    myDots.write(0, inv_a, 8);
   }
   else if(y < 16){
-    myDots.write(y-8, invA, 16-y);
+    myDots.write(y-8, inv_a, 16-y);
   }
   else{
     y = 0;
   }
   y++;
-  myDots.updateWithDelay(100);
+  delay(100);
 }

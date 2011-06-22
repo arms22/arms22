@@ -13,11 +13,9 @@ Dots	KEYWORD1
 #######################################
 
 begin	KEYWORD2
+end	KEYWORD2
 write	KEYWORD2
 clear	KEYWORD2
-turnOff	KEYWORD2
-turnOn	KEYWORD2
-updateRow	KEYWORD2
 update	KEYWORD2
 updateWithDelay	KEYWORD2
 

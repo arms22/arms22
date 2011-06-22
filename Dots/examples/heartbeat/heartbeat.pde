@@ -24,24 +24,8 @@
 
 #include <Dots.h>
 
-Dots myDots = Dots(9,4,10,6,17,11,16,13,5,15,14,8,12,7,3,2);
-/*
-const byte one[] = {
-  B00000010,
-  B01000000,
-  B00000000,
-  B00111100,
-  B00000000,
-};
+Dots myDots = Dots();
 
-const byte two[] = {
-  B01000000,
-  B00000010,
-  B00000000,
-  B00111100,
-  B00000000,
-};
-*/
 const byte one[] = {
   B00000000,
   B01100110,
@@ -72,9 +56,9 @@ void setup()
 void loop()
 {
   myDots.write(0, one, 8);
-  myDots.updateWithDelay(750);
-  
+  delay(750);
+
   myDots.write(0, two, 8);
-  myDots.updateWithDelay(250);
+  delay(250);
 }
 
