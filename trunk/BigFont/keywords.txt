@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map for BigFont
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+BigFont	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+attach	KEYWORD2
+class	KEYWORD2
+home	KEYWORD2
+setInvert	KEYWORD2
+setCursor	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
