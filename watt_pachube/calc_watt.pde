@@ -1,14 +1,8 @@
-// 端子定義
-const int arefPin = 0;
-
-// 商用電源周波数
-#define POWER_FREQ        (60)
-
 // １サイクルあたりのサンプル数
 #define NUMBER_OF_SAMPLES (25)
 
 // サンプリング間隔(マイクロ秒)
-#define SAMPLING_PERIOD   (1000000/(POWER_FREQ * NUMBER_OF_SAMPLES))
+#define SAMPLING_PERIOD   (1000000/(PWRLINE_FREQ * NUMBER_OF_SAMPLES))
 
 // サンプリング用バッファ
 int VASamples[NUMBER_OF_SAMPLES*4];
