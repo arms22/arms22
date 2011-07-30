@@ -1,9 +1,11 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <EthernetDHCP.h>
+#include <Time.h>
 #include "settings.h"
 
 // Pin definition
+const int arefPin = 0;
 const int ct1Pin = 1;
 const int vt1Pin = 2;
 const int ct2Pin = 3;
@@ -16,15 +18,13 @@ byte serverIpAddress[] = {
 // The TCP client
 Client client(serverIpAddress, 80);
 
-// Sampling interval (e.g. 60,000ms = 1min)
-unsigned long updateIntervalInMillis = 0;
-
-// The next time to feed
-unsigned long nextExecuteMillis = 0;
-
 // The last connection time to disconnect from the server
 // after uploaded feeds
-long lastConnectionTime = 0;
+unsigned long lastConnectionTime = 0;
+
+// The last update time
+int lastUpdateTime = 0;
+int lastDay;
 
 float Vrms;
 float Irms;
@@ -42,7 +42,7 @@ float watt_sum2;
 
 int   watt_samples;
 
-String csvData = "";
+String postData;
 
 void setup()
 {
@@ -68,8 +68,8 @@ void setup()
   Serial.print("DNS IP address is ");
   Serial.println(ip_to_str(dnsAddr));
 
-  updateIntervalInMillis = (updateIntervalInMinutes * 60000) - 1;
-  nextExecuteMillis = millis() + updateIntervalInMillis;
+  setTime(9,00,0, 28,6,2011); // 2011/6/28 9:55:0
+  ntpInit();
 
   watt_hour     = 0;
   vrms_sum      = 0;
@@ -79,6 +79,8 @@ void setup()
   irms_sum2     = 0;
   watt_sum2     = 0;
   watt_samples	= 0;
+
+  lastUpdateTime = minute();
 }
 
 void loop()
@@ -86,40 +88,40 @@ void loop()
   // Periodically call this method to maintain your DHCP lease
   EthernetDHCP.maintain();
 
+  // Time sync
+  ntpPolling();
+
   // Echo received strings to a host PC
   while (client.available() > 0) {
     char c = client.read();
     Serial.print(c);
   }
 
-  if ((millis() - lastConnectionTime) > 5000) {
+  if ((millis() - lastConnectionTime) > 10000) {
     if (client.connected()) {
       Serial.println("Disconnecting.");
       client.stop();
     }
   }
 
-  // Calculate the power
+  // Calculate the power1
   calcWatt(ct1Pin, vt1Pin);
 
-  // Adding the results
   vrms_sum += Vrms;
   irms_sum += Irms;
   watt_sum += Watt;
 
-  // Calculate the power
+  // Calculate the power2
   calcWatt(ct2Pin, vt2Pin);
 
-  // Adding the results
   vrms_sum2 += Vrms;
   irms_sum2 += Irms;
   watt_sum2 += Watt;
 
   watt_samples++;
 
-  if (millis() > nextExecuteMillis) {
-    Serial.println();
-    Serial.println("Updating...");
+  if (abs(minute() - lastUpdateTime) >= updateIntervalInMinutes) {
+    lastUpdateTime = minute();
 
     // Calculate the mean
     vrms_sum  /= watt_samples;
@@ -128,10 +130,10 @@ void loop()
 
     Serial.print("1 ");
     Serial.print(vrms_sum);
-    Serial.print(" Vrms, ");
+    Serial.print(" V, ");
 
     Serial.print(irms_sum);
-    Serial.print(" Irms, ");
+    Serial.print(" A, ");
 
     Serial.print(vrms_sum * irms_sum);
     Serial.print(" VA, ");
@@ -148,10 +150,10 @@ void loop()
 
     Serial.print("2 ");
     Serial.print(vrms_sum2);
-    Serial.print(" Vrms, ");
+    Serial.print(" V, ");
 
     Serial.print(irms_sum2);
-    Serial.print(" Irms, ");
+    Serial.print(" A, ");
 
     Serial.print(vrms_sum2 * irms_sum2);
     Serial.print(" VA, ");
@@ -162,11 +164,19 @@ void loop()
     Serial.print((watt_sum2 * 100) / (vrms_sum2 * irms_sum2));
     Serial.println(" %, ");
 
-    // Calculate the watt-hour
-    watt_hour += (watt_sum + watt_sum2) / (3600000 / updateIntervalInMillis);
+    float w = (watt_sum + watt_sum2) / (60 / updateIntervalInMinutes);
+    if( lastDay != day() ){
+      lastDay = day();
+      watt_hour = w;
+    }
+    else{
+      watt_hour += w;
+    }
+
+    Serial.print(watt_hour);
+    Serial.println(" Wh");
 
     updateDataStream();
-    nextExecuteMillis = millis() + updateIntervalInMillis;
 
     vrms_sum     = 0;
     irms_sum     = 0;
@@ -190,52 +200,39 @@ void updateDataStream(void)
   Serial.println();
   Serial.print("Connecting to Pachube...");
   if (client.connect()) {
-    Serial.println("connected");
+    Serial.println("ok");
     lastConnectionTime = millis();
   }
   else {
-    Serial.println("failed");
+    Serial.println("NG");
     return;
   }
 
-  csvData = "";
+  postData = "";
 
   // 0	Watt		Watt (W)
-  csvData += "0,";
-  appendFloatValueAsString(csvData, watt_sum);
-  csvData += "\n";
+  postData += "0,";
+  appendFloatValueAsString(postData, watt_sum);
+  postData += "\n";
 
-  // 1	Vrms		volts root mean square (Vrms)
-  csvData += "1,";
-  appendFloatValueAsString(csvData, vrms_sum);
-  csvData += "\n";
+  // 1	Watt		Watt (W)
+  postData += "1,";
+  appendFloatValueAsString(postData, watt_sum2);
+  postData += "\n";
 
-  // 2	Irms		ampere root mean square (Irms)
-  csvData += "2,";
-  appendFloatValueAsString(csvData, irms_sum);
-  csvData += "\n";
+  // 2	Watt-total	Watt (W)
+  postData += "2,";
+  appendFloatValueAsString(postData, watt_sum + watt_sum2);
+  postData += "\n";
 
-  // 3	Watt		Watt (W)
-  csvData += "3,";
-  appendFloatValueAsString(csvData, watt_sum2);
-  csvData += "\n";
+  // 3	Watt-hour	watt-hour (Wh)
+  postData += "3,";
+  appendFloatValueAsString(postData, watt_hour);
+  postData += "\n";
 
-  // 4	Vrms		volts root mean square (Vrms)
-  csvData += "4,";
-  appendFloatValueAsString(csvData, vrms_sum2);
-  csvData += "\n";
-
-  // 5	Irms		ampere root mean square (Irms)
-  csvData += "5,";
-  appendFloatValueAsString(csvData, irms_sum2);
-  csvData += "\n";
-
-  // 6	Watt-hour		watt-hour (Wh)
-  csvData += "6,";
-  appendFloatValueAsString(csvData, watt_hour);
-  csvData += "\n";
-
-  Serial.println(csvData);
+  Serial.println("Post Data:");
+  Serial.println(postData);
+  Serial.println();
 
   client.print("PUT /v2/feeds/");
   client.print(environmentId);
@@ -245,8 +242,12 @@ void updateDataStream(void)
   client.print("X-PachubeApiKey: ");
   client.println(apiKey);
   client.print("Content-Length: ");
-  client.println(csvData.length());
+  client.println(postData.length());
   client.println("Content-Type: text/csv");
   client.println();
-  client.println(csvData);
+  client.println(postData);
 }
+
+
+
+
