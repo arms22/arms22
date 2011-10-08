@@ -17,7 +17,6 @@ end	KEYWORD2
 write	KEYWORD2
 clear	KEYWORD2
 update	KEYWORD2
-updateWithDelay	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
