@@ -51,8 +51,9 @@ void BigFont::setCursor(uint8_t col, uint8_t row)
 	_cur_row = row;
 }
 
-void BigFont::write(uint8_t ch)
+size_t BigFont::write(uint8_t ch)
 {
 	render_big_char(ch, _cur_col, _cur_row);
 	_cur_col += 4;
+    return 1;
 }
