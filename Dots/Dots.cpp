@@ -7,8 +7,7 @@
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
 */
 
-#include <wiring.h>
-#include <pins_arduino.h>
+#include <Arduino.h>
 #include <avr/interrupt.h>
 #include "Dots.h"
 
