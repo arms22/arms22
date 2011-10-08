@@ -15,7 +15,7 @@
   http://liudr.wordpress.com/phi_big_font/
   All rights reserved.
 */
-#include <WProgram.h>
+#include <Arduino.h>
 #include <LiquidCrystal.h>
 
 void invert_big_font(boolean inv);

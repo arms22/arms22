@@ -22,7 +22,7 @@ public:
 	void home();
 	void setInvert(bool yes);
 	void setCursor(uint8_t col, uint8_t row);
-	virtual void write(uint8_t);
+	virtual size_t write(uint8_t);
 private:
 	uint8_t _cur_col;
 	uint8_t _cur_row;
