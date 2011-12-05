@@ -1,38 +1,27 @@
 /*
-  Dots.cpp - Arduino library for 8x8/5x7 Dot LED Matrix.
-  Copyright 2010 arms22. All right reserved.
-  
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-*/
+ Dots.cpp - Arduino library for 8x8/5x7 Dot LED Matrix.
+ Copyright 2010,2011 arms22. All right reserved.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ */
 
 #include <Arduino.h>
 #include <avr/interrupt.h>
 #include "Dots.h"
 
-Dots::Dots()
+Dots::Dots(int which)
 {
-	_rowPins[0] = 9;
-	_rowPins[1] = 4;
-	_rowPins[2] = 10;
-	_rowPins[3] = 6;
-	_rowPins[4] = 17;
-	_rowPins[5] = 11;
-	_rowPins[6] = 16;
-	_rowPins[7] = 13;
-	
-	_colPins[0] = 5;
-	_colPins[1] = 15;
-	_colPins[2] = 14;
-	_colPins[3] = 8;
-	_colPins[4] = 12;
-	_colPins[5] = 7;
-	_colPins[6] = 3;
-	_colPins[7] = 2;
-	
-	_numOfRows = 8;
-	_numOfCols = 8;
+	if(which == Dotsduino_12d){
+		init12d();
+	}
+	else if(which == Dotsduino_12c){
+		init12c();
+	}
+	else{
+		_autoDetect = true;
+	}
 }
 
 Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
@@ -48,6 +37,7 @@ Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 	
 	_numOfRows = 8;
 	_numOfCols = 8;
+	_autoDetect = false;
 }
 
 Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
@@ -63,11 +53,78 @@ Dots::Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 	
 	_numOfRows = 7;
 	_numOfCols = 5;
+	_autoDetect = false;
+}
+
+void Dots::init12d(void)
+{
+	_rowPins[0] = 2;	_rowPins[1] = 3;	_rowPins[2] = 4;	_rowPins[3] = 13;
+	_rowPins[4] = 14;   _rowPins[5] = 15;   _rowPins[6] = 16;   _rowPins[7] = 17;
+	
+	_colPins[0] = 12;   _colPins[1] = 11;   _colPins[2] = 10;   _colPins[3] = 9;
+	_colPins[4] = 5;	_colPins[5] = 6;	_colPins[6] = 7;	_colPins[7] = 8;
+	
+	_numOfRows = 8;
+	_numOfCols = 8;
+	_autoDetect = false;
+}
+
+void Dots::init12c(void)
+{
+	_rowPins[0] = 9;	_rowPins[1] = 4;	_rowPins[2] = 10;   _rowPins[3] = 6;
+	_rowPins[4] = 17;   _rowPins[5] = 11;   _rowPins[6] = 16;   _rowPins[7] = 13;
+	
+	_colPins[0] = 5;	_colPins[1] = 15;   _colPins[2] = 14;   _colPins[3] = 8;
+	_colPins[4] = 12;   _colPins[5] = 7;	_colPins[6] = 3;	_colPins[7] = 2;
+	
+	_numOfRows = 8;
+	_numOfCols = 8;
+	_autoDetect = false;
+}
+
+void Dots::autoDetect(void)
+{
+	uint8_t i, row, col, cnt;
+	
+	for(i=2; i<18; i++){
+		pinMode(i, INPUT);
+		digitalWrite(i, LOW);
+	}
+	
+	row = 9;					// 1.2c: R0 1.2d: C3
+	col = 15;					// 1.2c: C1 1.2d: R5
+	
+	pinMode(row, OUTPUT);
+	pinMode(col, OUTPUT);
+	
+	// discharge
+	digitalWrite(col, LOW);
+	delayMicroseconds(1000);
+	
+	// charge
+	digitalWrite(col, HIGH);
+	delayMicroseconds(10);
+	
+	// measure
+	pinMode(col, INPUT);
+	digitalWrite(col, LOW);
+	
+	for(cnt=0; digitalRead(col) && (cnt < 200); cnt++);
+	
+	// which matrix?
+	if(cnt > 50){
+		init12c();
+	}else{
+		init12d();
+	}
 }
 
 void Dots::begin(void)
 {
 	uint8_t i;
+	if(_autoDetect){
+		autoDetect();
+	}
 	for(i=0;i<_numOfRows;i++){
 		pinMode(_rowPins[i], OUTPUT);
 	}
@@ -76,6 +133,7 @@ void Dots::begin(void)
 	}
 	clear();
 	Dots::active_object = this;
+	_row = 0;
 	TCCR0A	= 0;
 	OCR0A	= 0;
 	TIFR0  |= _BV(OCF0A);
@@ -116,7 +174,6 @@ void Dots::clear(void)
 	for(i=0;i<8;i++){
 		_buffer[i] = 0;
 	}
-	_row = _numOfRows - 1;
 }
 
 void Dots::update(void)
