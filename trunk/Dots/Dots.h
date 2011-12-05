@@ -12,6 +12,9 @@
 
 #include <inttypes.h>
 
+#define Dotsduino_12c (1)
+#define Dotsduino_12d (2)
+
 class Dots
 {
 private:
@@ -21,8 +24,12 @@ private:
 	uint8_t _numOfRows;
 	uint8_t _numOfCols;
 	uint8_t _row;
+	uint8_t _autoDetect;
+	void init12d(void);
+	void init12c(void);
+	void autoDetect(void);
 public:
-	Dots();
+	Dots(int which = 0);
 	
 	Dots(uint8_t r0,uint8_t r1,uint8_t r2,uint8_t r3,
 		 uint8_t r4,uint8_t r5,uint8_t r6,uint8_t r7,
@@ -41,7 +48,6 @@ public:
 	void write(uint8_t y, const uint8_t values[], uint8_t size);
 	void clear(void);
 	void update(void);
-	
 	static Dots *active_object;
 };
 
