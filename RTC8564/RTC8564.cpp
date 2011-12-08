@@ -1,9 +1,4 @@
-extern "C" {
-  #include <stdlib.h>
-  #include <string.h>
-  #include <inttypes.h>
-}
-#include <WConstants.h>
+#include <Arduino.h>
 #include <Wire.h>
 #include "RTC8564.h"
 
@@ -21,24 +16,24 @@ void RTC8564::init(void)
 {
 	delay(1000);
 	Wire.beginTransmission(RTC8564_SLAVE_ADRS);
-	Wire.send(0x00);			// write reg addr 00
-	Wire.send(0x20);			// 00 Control 1, STOP=1
-	Wire.send(0x00);			// 01 Control 2
-	Wire.send(0x00);			// 02 Seconds
-	Wire.send(0x00);			// 03 Minutes
-	Wire.send(0x09);			// 04 Hours
-	Wire.send(0x01);			// 05 Days
-	Wire.send(0x01);			// 06 Weekdays
-	Wire.send(0x01);			// 07 Months
-	Wire.send(0x01);			// 08 Years
-	Wire.send(0x00);			// 09 Minutes Alarm
-	Wire.send(0x00);			// 0A Hours Alarm
-	Wire.send(0x00);			// 0B Days Alarm
-	Wire.send(0x00);			// 0C Weekdays Alarm
-	Wire.send(0x00);			// 0D CLKOUT
-	Wire.send(0x00);			// 0E Timer control
-	Wire.send(0x00);			// 0F Timer
-	Wire.send(0x00);			// 00 Control 1, STOP=0
+	Wire.write(byte(0x00));			// write reg addr 00
+	Wire.write(byte(0x20));			// 00 Control 1, STOP=1
+	Wire.write(byte(0x00));			// 01 Control 2
+	Wire.write(byte(0x00));			// 02 Seconds
+	Wire.write(byte(0x00));			// 03 Minutes
+	Wire.write(byte(0x09));			// 04 Hours
+	Wire.write(byte(0x01));			// 05 Days
+	Wire.write(byte(0x01));			// 06 Weekdays
+	Wire.write(byte(0x01));			// 07 Months
+	Wire.write(byte(0x01));			// 08 Years
+	Wire.write(byte(0x00));			// 09 Minutes Alarm
+	Wire.write(byte(0x00));			// 0A Hours Alarm
+	Wire.write(byte(0x00));			// 0B Days Alarm
+	Wire.write(byte(0x00));			// 0C Weekdays Alarm
+	Wire.write(byte(0x00));			// 0D CLKOUT
+	Wire.write(byte(0x00));			// 0E Timer control
+	Wire.write(byte(0x00));			// 0F Timer
+	Wire.write(byte(0x00));			// 00 Control 1, STOP=0
 	Wire.endTransmission();
 }
 
@@ -54,18 +49,18 @@ void RTC8564::begin(void)
 void RTC8564::sync(uint8_t date_time[],uint8_t size)
 {
 	Wire.beginTransmission(RTC8564_SLAVE_ADRS);
-	Wire.send(0x00);			// write reg addr 00
-	Wire.send(0x20);			// 00 Control 1, STOP=1
+	Wire.write(byte(0x00));			// write reg addr 00
+	Wire.write(byte(0x20));			// 00 Control 1, STOP=1
 	Wire.endTransmission();
 	
 	Wire.beginTransmission(RTC8564_SLAVE_ADRS);
-	Wire.send(0x02);			// write reg addr 02
-	Wire.send(date_time, size);
+	Wire.write(byte(0x02));			// write reg addr 02
+	Wire.write(date_time, size);
 	Wire.endTransmission();
 	
 	Wire.beginTransmission(RTC8564_SLAVE_ADRS);
-	Wire.send(0x00);			// write reg addr 00
-	Wire.send(0x00);			// 00 Control 1, STOP=0
+	Wire.write(byte(0x00));			// write reg addr 00
+	Wire.write(byte(0x00));			// 00 Control 1, STOP=0
 	Wire.endTransmission();
 }
 
@@ -74,14 +69,14 @@ bool RTC8564::available(void)
 	uint8_t buff[7];
 	
 	Wire.beginTransmission(RTC8564_SLAVE_ADRS);
-	Wire.send(0x02);			// write reg addr 02
+	Wire.write(byte(0x02));			// write reg addr 02
 	Wire.endTransmission();
 	
 	Wire.requestFrom(RTC8564_SLAVE_ADRS, 7);
 	
 	for(int i=0; i<7; i++){
 		if(Wire.available()){
-			buff[i] = Wire.receive();
+			buff[i] = Wire.read();
 		}
 	}
 	
@@ -99,11 +94,11 @@ bool RTC8564::available(void)
 bool RTC8564::isvalid(void)
 {
 	Wire.beginTransmission(RTC8564_SLAVE_ADRS);
-	Wire.send(0x02);			// write reg addr 02
+	Wire.write(byte(0x02));			// write reg addr 02
 	Wire.endTransmission();
 	Wire.requestFrom(RTC8564_SLAVE_ADRS, 1);
 	if(Wire.available()){
-		uint8_t buff = Wire.receive();
+		uint8_t buff = Wire.read();
 		return (buff & 0x80 ? false : true);
 	}
 	return false;
