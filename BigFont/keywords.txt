@@ -13,7 +13,7 @@ BigFont	KEYWORD1
 #######################################
 
 attach	KEYWORD2
-class	KEYWORD2
+clear	KEYWORD2
 home	KEYWORD2
 setInvert	KEYWORD2
 setCursor	KEYWORD2

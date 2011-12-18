@@ -48,11 +48,17 @@ static PROGMEM prog_char font_35_09[] = {
 	3,0,3,4,4,7, 3,2,2,5,5,7, 3,2,2,7,5,7, 2,2,3,0,0,7,
 	3,2,3,7,5,7, 3,2,3,5,5,7
 };
+
+static PROGMEM prog_char font_35_dot[] = {
+    0,0,0,0,3,0, // '.'
+};
+
 /*
 ( 0,3,4,0,6,1,
 ) 4,3,0,1,6,0,
 * 1,3,1,2,7,2,
 + 0,3,0,4,7,4,
+, 0,0,0,0,3,0,
 - 0,0,0,4,4,4,
 . 0,0,0,0,3,0,
 / 0,0,3,3,4,0,
@@ -96,6 +102,10 @@ static void read_big_char_code(char ch, uint8_t *buf)
 		ch = ch - '0';
 		from = font_35_09;
 	}
+    else if ( (ch == '.') ) {
+		ch = ch - '.';
+		from = font_35_dot;
+    }
 	else if ( (ch >= 'A') && (ch <= 'Z') ) {
 		ch = ch - 'A';
 		from = font_35_AZ;

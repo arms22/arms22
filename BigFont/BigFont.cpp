@@ -25,10 +25,6 @@ void BigFont::attach(LiquidCrystal *lcd)
 	invert_big_font(false);
 }
 
-// void BigFont::detach()
-// {
-// }
-
 void BigFont::clear()
 {
 	lcd_clear();
