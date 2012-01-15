@@ -1,6 +1,6 @@
 /*
   Stewitter.h - Arduino library to Post messages to Twitter with OAuth.
-  Copyright (c) arms22 2010. All right reserved.
+  Copyright (c) arms22 2010 - 2012. All right reserved.
 */
 /*
   Twitter.h - Arduino library to Post messages to Twitter.
@@ -14,28 +14,25 @@
 #ifndef Stewitter_H
 #define Stewitter_H
 
-#include <inttypes.h>
-#include <avr/pgmspace.h>
+#include <Arduino.h>
 #include <Ethernet.h>
 
 class Stewitter
 {
 private:
-	uint8_t parseStatus;
+	EthernetClient client;
+    String httpBody;
+	const char *token;
 	int statusCode;
-	Client client;
-	const char *deviceToken;
-	static uint8_t server[4];
-	void print_P(const prog_char *str);
-	void println_P(const prog_char *str);
-	void printPercentEscaped(const char *str);
+	uint8_t parseStatus;
 public:
-	Stewitter(const char *user_and_passwd);
-	
+	Stewitter(const char *token);
 	bool post(const char *msg);
-	bool checkStatus(void);
-	int  wait(void);
+    bool lastMention(void);
+	bool checkStatus(Print *debug = NULL);
+	int  wait(Print *debug = NULL);
 	int  status(void) { return statusCode; }
+    String& response(void) { return httpBody; }
 };
 
 #endif	//Stewitter_H

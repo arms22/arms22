@@ -13,9 +13,10 @@ Stewitter	KEYWORD1
 #######################################
 
 post	KEYWORD2
-getStatus	KEYWORD2
+lastMention	KEYWORD2
 checkStatus	KEYWORD2
 wait	KEYWORD2
+response	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

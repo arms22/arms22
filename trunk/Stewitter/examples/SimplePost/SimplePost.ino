@@ -1,5 +1,4 @@
-#include <EthernetDHCP.h>
-#include <EthernetDNS.h>
+#include <SPI.h>
 #include <Ethernet.h>
 #include <Stewitter.h>
 
@@ -12,14 +11,14 @@ void setup()
 {
   delay(1000);
 
-  EthernetDHCP.begin(mac);
+  Ethernet.begin(mac);
 
   Serial.begin(9600);
   Serial.println("connecting ...");
   if (twitter.post(msg)) {
     int status = twitter.wait();
     if (status == 200) {
-      Serial.println("OK.");
+      Serial.println(twitter.response());
     } 
     else {
       Serial.print("failed : code ");
@@ -33,7 +32,5 @@ void setup()
 
 void loop()
 {
-  EthernetDHCP.maintain();
 }
-
 

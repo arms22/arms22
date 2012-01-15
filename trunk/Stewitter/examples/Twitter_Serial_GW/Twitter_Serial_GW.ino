@@ -1,5 +1,4 @@
-#include <EthernetDHCP.h>
-#include <EthernetDNS.h>
+#include <SPI.h>
 #include <Ethernet.h>
 #include <Stewitter.h>
 
@@ -21,7 +20,7 @@ int len = 0;
 void setup()
 {
   delay(1000);
-  EthernetDHCP.begin(mac);
+  Ethernet.begin(mac);
 
   Serial.begin(9600);
   Serial.print("> ");
@@ -51,7 +50,6 @@ void loop()
     else
       Serial.print(recv);
   }
-  EthernetDHCP.maintain();
 }
 
 void post()
