@@ -7,7 +7,7 @@
 // サンプリング用バッファ
 int VASamples[NUMBER_OF_SAMPLES*4];
 
-void calcWatt (int ctPin, int vtPin)
+void calcWatt (WattSample &sample, int ctPin, int vtPin)
 {
   unsigned long t1,t2;
   int i,r,v1,a1,a2,v2;
@@ -36,9 +36,9 @@ void calcWatt (int ctPin, int vtPin)
   }
 
   // １サイクル分の電圧と電流、電力を加算
-  Vrms = 0;
-  Irms = 0;
-  Watt = 0;
+  float vrms = 0;
+  float irms = 0;
+  float watt = 0;
 
   for(i=0; i<NUMBER_OF_SAMPLES; i++){
     v1 = VASamples[(i*4)+0];
@@ -49,15 +49,18 @@ void calcWatt (int ctPin, int vtPin)
     float vv = ((((v1+v2)/2) * 5.0) / 1024) * kVT;
     float aa = ((((a1+a2)/2) * 5.0) / 1024) / kCT;
 
-    Vrms += vv * vv;
-    Irms += aa * aa;
-    Watt += vv * aa;
+    vrms += vv * vv;
+    irms += aa * aa;
+    watt += vv * aa;
   }
-
+  
   // 2乗平均平方根(rms)を求める
-  Vrms = sqrt(Vrms / NUMBER_OF_SAMPLES);
-  Irms = sqrt(Irms / NUMBER_OF_SAMPLES);
-
+  vrms = sqrt(vrms / NUMBER_OF_SAMPLES);
+  irms = sqrt(irms / NUMBER_OF_SAMPLES);
+  
   // 平均電力を求める
-  Watt = Watt / NUMBER_OF_SAMPLES;
+  watt = watt / NUMBER_OF_SAMPLES;
+  
+  // 値を格納
+  setSample(sample, vrms, irms, watt);
 }
