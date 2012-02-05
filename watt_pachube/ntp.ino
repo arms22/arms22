@@ -1,11 +1,11 @@
-#include <Udp.h>
+// UDPクライアント
+EthernetUDP Udp;
 
 // UDPローカルポート番号
 unsigned int localPort = 8888;
 
 // NTPタイムサーバIPアドレス
-byte timeServer[] = { 
-  133, 243, 238, 164 }; // ntp.nict.jp NTP server
+IPAddress timeServer(133, 243, 238, 164); // ntp.nict.jp NTP server
 
 // NTPパケットバッファサイズ
 const int NTP_PACKET_SIZE= 48;
@@ -21,7 +21,7 @@ void ntpInit(void)
   Udp.begin(localPort);
 
   // 最初の時刻リクエストを送信
-  sendNTPpacket(timeServer);
+  ntpSendPacket(timeServer);
   lastNtpRequestTime = millis();
 }
 
@@ -29,16 +29,16 @@ void ntpPolling(void)
 {
   if ( (millis() - lastNtpRequestTime) > (timeSyncIntervalInSeconds * 1000UL) ){
     // NTPサーバへ時刻リクエストを送信
-    sendNTPpacket(timeServer);
+    ntpSendPacket(timeServer);
     // 時間を更新
     lastNtpRequestTime = millis();
   }
 
   // NTPサーバからのパケット受信
-  if ( Udp.available() >= NTP_PACKET_SIZE ) {
+  if ( Udp.parsePacket() ) {  
 
     // バッファに受信データを読み込む
-    Udp.readPacket(packetBuffer, NTP_PACKET_SIZE);
+    Udp.read(packetBuffer, NTP_PACKET_SIZE);
 
     // 時刻情報はパケットの40バイト目からはじまる4バイトのデータ
     unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
@@ -48,7 +48,7 @@ void ntpPolling(void)
     // 1900年1月1日0時との相対的な差を秒単位で表している
     // 小数部は切り捨てて、秒を求めている
     unsigned long secsSince1900 = highWord << 16 | lowWord;
-    Serial.print("Seconds since Jan 1 1900 = " );
+    Serial.print(F("Seconds since Jan 1 1900 = "));
     Serial.println(secsSince1900);
 
     // NTPタイムスタンプをUNIXタイムに変換する
@@ -57,14 +57,14 @@ void ntpPolling(void)
     const unsigned long seventyYears = 2208988800UL;
     // NTPタイムスタンプから70年分の秒を引くとUNIXタイムが得られる
     unsigned long epoch = secsSince1900 - seventyYears;  
-    Serial.print("Unix time = ");
+    Serial.print(F("Unix time = "));
     Serial.println(epoch);
 
     // Timeライブラリに時間を設定(UNIXタイム)
     // 日本標準時にあわせるために＋9時間しておく
     setTime(epoch + (9 * 60 * 60));
 
-    Serial.print("JST is ");
+    Serial.print(F("JST is "));
     Serial.print(year());
     Serial.print('/');
     Serial.print(month());
@@ -81,7 +81,7 @@ void ntpPolling(void)
 }
 
 // send an NTP request to the time server at the given address 
-void sendNTPpacket(byte *address)
+void ntpSendPacket(IPAddress& address)
 {
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE); 
@@ -99,6 +99,8 @@ void sendNTPpacket(byte *address)
   // all NTP fields have been given values, now
   // you can send a packet requesting a timestamp:
   // NTP requests are to port 123
-  Udp.sendPacket( packetBuffer, NTP_PACKET_SIZE,  address, 123 );
+  Udp.beginPacket(address, 123);
+  Udp.write(packetBuffer,NTP_PACKET_SIZE);
+  Udp.endPacket(); 
 }
 
