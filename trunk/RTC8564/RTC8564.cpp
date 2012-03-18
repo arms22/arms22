@@ -1,11 +1,10 @@
-#include <Arduino.h>
-#include <Wire.h>
 #include "RTC8564.h"
+#include <Wire.h>
 
 #define RTC8564_SLAVE_ADRS	(0xA2 >> 1)
 #define BCD2Decimal(x)		(((x>>4)*10)+(x&0xf))
 
-// Constructors ////////////////////////////////////////////////////////////////
+RTC8564 Rtc = RTC8564();
 
 RTC8564::RTC8564()
 	: _seconds(0), _minutes(0), _hours(0), _days(0), _weekdays(0), _months(0), _years(0), _century(0)
@@ -36,8 +35,6 @@ void RTC8564::init(void)
 	Wire.write(byte(0x00));			// 00 Control 1, STOP=0
 	Wire.endTransmission();
 }
-
-// Public Methods //////////////////////////////////////////////////////////////
 
 void RTC8564::begin(void)
 {
@@ -141,8 +138,3 @@ uint8_t RTC8564::years(uint8_t format) const {
 bool RTC8564::century() const {
 	return _century;
 }
-
-
-// Preinstantiate Objects //////////////////////////////////////////////////////
-
-RTC8564 Rtc = RTC8564();
