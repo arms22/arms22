@@ -1,7 +1,7 @@
 #ifndef RTC8564_h
 #define RTC8564_h
 
-#include <inttypes.h>
+#include <Arduino.h>
 
 class RTC8564
 {
