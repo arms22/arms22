@@ -7,9 +7,8 @@
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
  */
 
-#include <Arduino.h>
-#include <avr/interrupt.h>
 #include "Dots.h"
+#include <avr/interrupt.h>
 
 Dots::Dots(int which)
 {
@@ -146,7 +145,7 @@ void Dots::end(void)
 	Dots::active_object = 0;
 }
 
-void Dots::write(uint8_t x, uint8_t y, uint8_t value)
+void Dots::write(uint8_t x, uint8_t y, int value)
 {
 	uint8_t tmp,msk;
 	tmp = _buffer[y];
@@ -156,16 +155,15 @@ void Dots::write(uint8_t x, uint8_t y, uint8_t value)
 	_buffer[y] = tmp;
 }
 
-void Dots::write(uint8_t y, uint8_t value)
+void Dots::write(uint8_t y, int value)
 {
 	_buffer[y] = value;
 }
 
-void Dots::write(uint8_t y, const uint8_t values[], uint8_t size)
+void Dots::write(uint8_t y, const uint8_t *buffer, size_t size)
 {
-	uint8_t i;
-	for(i=0;i<size;i++)
-		_buffer[(y++) & 0x07] = values[i];
+	for(;size;size--)
+		_buffer[(y++) & 0x07] = *buffer++;
 }
 
 void Dots::clear(void)

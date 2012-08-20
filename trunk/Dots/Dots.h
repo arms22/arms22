@@ -10,7 +10,7 @@
 #ifndef DOTS_H
 #define DOTS_H
 
-#include <inttypes.h>
+#include <Arduino.h>
 
 #define Dotsduino_12c (1)
 #define Dotsduino_12d (2)
@@ -43,9 +43,9 @@ public:
 	
 	void begin(void);
 	void end(void);
-	void write(uint8_t x, uint8_t y, uint8_t value);
-	void write(uint8_t y, uint8_t value);
-	void write(uint8_t y, const uint8_t values[], uint8_t size);
+	void write(uint8_t x, uint8_t y, int value);
+	void write(uint8_t y, int value);
+	void write(uint8_t y, const uint8_t *buffer, size_t size);
 	void clear(void);
 	void update(void);
 	static Dots *active_object;
