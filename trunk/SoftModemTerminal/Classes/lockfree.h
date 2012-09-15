@@ -253,7 +253,7 @@ namespace lock_free
 		// Add a node to the head of the free node list
 		void release(node<T>* pNode)
 		{
-			node_add(pNode);
+			this->node_add(pNode);
 		}
 	};
 
@@ -300,7 +300,7 @@ namespace lock_free
 			pNewNode->data = data;
 
 			// Add the node to the collection
-			node_add(pNewNode);
+			this->node_add(pNewNode);
 		}
 
 		// Remove a data item from the collection
@@ -394,7 +394,7 @@ namespace lock_free
 		// Push a data item onto the tail of the list
 		void put(T data)
 		{
-			add(data);
+			this->add(data);
 		}
 	};
 
