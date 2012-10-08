@@ -12,6 +12,8 @@
 
 #include <Arduino.h>
 
+#define DOTS_FAST_WRITE_ENABLE (1)
+
 #define Dotsduino_12c (1)
 #define Dotsduino_12d (2)
 

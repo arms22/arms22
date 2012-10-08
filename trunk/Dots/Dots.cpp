@@ -4,7 +4,7 @@
  
  This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
 #include "Dots.h"
@@ -174,6 +174,43 @@ void Dots::clear(void)
 	}
 }
 
+#if DOTS_FAST_WRITE_ENABLE
+static inline void outp(uint8_t pin, uint8_t val)
+{
+	uint8_t bit = digitalPinToBitMask(pin);
+	uint8_t port = digitalPinToPort(pin);
+	volatile uint8_t *out = portOutputRegister(port);
+	if (val == LOW) {
+		*out &= ~bit;
+	} else {
+		*out |= bit;
+	}
+}
+void Dots::update(void)
+{
+    uint8_t data;
+	outp(_rowPins[_row], LOW);
+	_row++;
+	if(_row >= _numOfRows){
+		_row = 0;
+	}
+	data = _buffer[_row];
+    switch (_numOfCols) {
+        case 8: outp(_colPins[7], !(data & 0x80));
+        case 7: outp(_colPins[6], !(data & 0x40));
+        case 6: outp(_colPins[5], !(data & 0x20));
+        case 5: outp(_colPins[4], !(data & 0x10));
+        case 4: outp(_colPins[3], !(data & 0x08));
+        case 3: outp(_colPins[2], !(data & 0x04));
+        case 2: outp(_colPins[1], !(data & 0x02));
+        case 1: outp(_colPins[0], !(data & 0x01));
+    }
+	outp(_rowPins[_row], HIGH);
+
+#define UPDATE_INTERVAL 64
+    OCR0A += UPDATE_INTERVAL;
+}
+#else
 void Dots::update(void)
 {
 	uint8_t i,data,mask;
@@ -194,6 +231,7 @@ void Dots::update(void)
 	}
 	digitalWrite(_rowPins[_row], HIGH);
 }
+#endif
 
 Dots *Dots::active_object = 0;
 
