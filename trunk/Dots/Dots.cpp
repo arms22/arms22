@@ -196,14 +196,14 @@ void Dots::update(void)
 	}
 	data = _buffer[_row];
     switch (_numOfCols) {
-        case 8: outp(_colPins[7], !(data & 0x80));
-        case 7: outp(_colPins[6], !(data & 0x40));
-        case 6: outp(_colPins[5], !(data & 0x20));
-        case 5: outp(_colPins[4], !(data & 0x10));
-        case 4: outp(_colPins[3], !(data & 0x08));
-        case 3: outp(_colPins[2], !(data & 0x04));
-        case 2: outp(_colPins[1], !(data & 0x02));
-        case 1: outp(_colPins[0], !(data & 0x01));
+        case 8: outp(_colPins[7], !(data & 0x01));
+        case 7: outp(_colPins[6], !(data & 0x02));
+        case 6: outp(_colPins[5], !(data & 0x04));
+        case 5: outp(_colPins[4], !(data & 0x08));
+        case 4: outp(_colPins[3], !(data & 0x10));
+        case 3: outp(_colPins[2], !(data & 0x20));
+        case 2: outp(_colPins[1], !(data & 0x40));
+        case 1: outp(_colPins[0], !(data & 0x80));
     }
 	outp(_rowPins[_row], HIGH);
 
