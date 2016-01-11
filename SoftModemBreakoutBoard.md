@@ -104,9 +104,9 @@ iPhone SDKはAppleの開発者ページで開発者登録を行うとダウン�
 
 ### 音響電文 ###
 
-~~SoftModemTerminal.appがAppStoreからダウンロードできるようになりました。iPhoneアプリケーションの開発環境をお持ちでないかたは次のURLからアプリケーションをダウンロードしてください。
+~~SoftModemTerminal.appがAppStoreからダウンロードできるようになりました。iPhoneアプリケーションの開発環境をお持ちでないかたは次のURLからアプリケーションをダウンロードしてください。~~
 
-[http://itunes.apple.com/jp/app/id385096654?mt=8](http://itunes.apple.com/jp/app/id385096654?mt=8)~~
+~~[http://itunes.apple.com/jp/app/id385096654?mt=8](http://itunes.apple.com/jp/app/id385096654?mt=8)~~
 
 ## iPhoneソースコードの使用方法 ##
 
